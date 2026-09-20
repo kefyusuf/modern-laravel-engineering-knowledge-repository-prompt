@@ -1,0 +1,12 @@
+# Node tooling
+node_modules/
+
+# PHP harness
+examples/vendor/
+examples/.phpunit.cache/
+examples/.phpunit.result.cache
+examples/composer.lock
+
+# OS / editor
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "config": {
+    "default": true,
+    "MD007": { "indent": 2 },
+    "MD013": { "line_length": 100, "code_blocks": false, "tables": false, "headings": false },
+    "MD024": { "siblings_only": true },
+    "MD025": { "front_matter_title": "" },
+    "MD033": { "allowed_elements": ["details", "summary"] },
+    "MD041": false,
+    "MD060": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["**/node_modules/**", "examples/vendor/**", "**/.phpunit.cache/**"]
+}

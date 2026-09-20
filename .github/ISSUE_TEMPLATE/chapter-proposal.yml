@@ -1,0 +1,40 @@
+name: Chapter proposal
+description: Propose a new chapter (required before drafting one)
+labels: [chapter-proposal]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The production problem this solves
+      description: Why would a senior Laravel engineer need this? What breaks in production without it?
+    validations:
+      required: true
+  - type: textarea
+    id: not-covered
+    attributes:
+      label: Why existing chapters don't cover it
+      description: Reference the related chapters and what they deliberately leave out.
+    validations:
+      required: true
+  - type: textarea
+    id: failure-modes
+    attributes:
+      label: Three failure modes the chapter will document
+      description: "Each as: root cause → detection signal → fix."
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Where behavior differs across Laravel 10–13
+      description: APIs introduced, changed defaults, changed minimums. Cite primary sources (laravel.com/docs, framework source).
+    validations:
+      required: true
+  - type: dropdown
+    id: dco
+    attributes:
+      label: DCO
+      options:
+        - "I certify the DCO (https://developercertificate.org/) for my contributions"
+    validations:
+      required: true

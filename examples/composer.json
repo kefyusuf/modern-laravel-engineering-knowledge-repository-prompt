@@ -1,0 +1,33 @@
+{
+  "name": "modern-laravel-engineering/examples",
+  "description": "Executable verification harness for the Modern Laravel Engineering handbook (chapter examples, run via Orchestra Testbench + Pest).",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "laravel/framework": "^12.0",
+    "orchestra/testbench": "^10.0",
+    "pestphp/pest": "^2.34 || ^3.0",
+    "pestphp/pest-plugin-laravel": "^2.4 || ^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MLE\\Examples\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MLE\\Examples\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "scripts": {
+    "test": "pest"
+  }
+}

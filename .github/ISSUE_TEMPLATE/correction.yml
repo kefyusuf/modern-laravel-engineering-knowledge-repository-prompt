@@ -1,0 +1,30 @@
+name: Factual correction
+description: Report something wrong, stale, or unverifiable in an existing chapter
+labels: [correction]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Chapter and section
+      placeholder: chapters/data/locking.md — "What usually goes wrong"
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: The claim as written
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: What is wrong / what it should say
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Primary source
+      description: Official docs or framework source only (link). Blog posts are not sufficient for version claims.
+    validations:
+      required: true

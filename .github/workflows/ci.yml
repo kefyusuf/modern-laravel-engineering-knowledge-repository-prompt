@@ -1,0 +1,84 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly: external link rot check (docs job) + matrix canary
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Docs gates (lint, links, mapping, markers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Markdownlint
+        run: npx -y markdownlint-cli2 "**/*.md"
+      - name: PHP structure smoke test (no PHP runtime needed)
+        run: node scripts/php-smoke.mjs
+      - name: Internal links & anchors
+        run: node scripts/check-links.mjs
+      - name: Chapter <-> harness example mapping
+        run: node scripts/check-example-mapping.mjs
+      - name: VERIFY markers (strict on main)
+        run: node scripts/check-verify-markers.mjs
+
+  examples:
+    name: Harness — Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { laravel: "^10.0", php: "8.2", testbench: "^8.0" }
+          - { laravel: "^11.0", php: "8.2", testbench: "^9.0" }
+          - { laravel: "^12.0", php: "8.3", testbench: "^10.0" }
+          - { laravel: "^13.0", php: "8.3", testbench: "^11.0" }
+    defaults:
+      run:
+        working-directory: examples
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_sqlite, redis
+          coverage: none
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev
+          composer update --prefer-dist --no-interaction --no-progress
+      - name: Run harness
+        run: vendor/bin/pest --ci
+
+  external-links:
+    name: External link check (weekly)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress --max-retries 2
+            --exclude '^https://github\.com/.*/(issues|pull)/'
+            './**/*.md'
+          fail: true
