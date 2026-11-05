@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 // Static smoke test for harness PHP (no PHP runtime available locally):
-//  - PSR-4: declared class/interface name must match the file name.
+//  - PSR-4: namespace + declared class name must match the file's location
+//    under the composer autoload root.
 //  - Crude tokenizer: braces/parens balanced outside strings & comments.
-// Not a parser: it cannot catch type errors — CI's `php -l` + Pest run is the
-// real gate. This catches structural authoring mistakes before push.
+// Not a parser: it cannot catch type errors — CI's Pest run is the real
+// gate. This catches structural authoring mistakes before push.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, basename } from 'node:path';
+import { join, basename, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples');
+const autoloadRoot = 'tests'; // composer autoload-dev: MLE\Examples\Tests\ => tests/
 
 function walk(dir, acc = []) {
   for (const e of readdirSync(dir)) {
@@ -27,18 +28,29 @@ const files = walk(root);
 for (const f of files) {
   const src = readFileSync(f, 'utf8');
   const ns = src.match(/namespace\s+([\w\\]+);/)?.[1];
+  const cls = src.match(/(?:final\s+|abstract\s+)?(?:class|interface|enum|trait)\s+(\w+)/);
   const isFixture = Boolean(ns && ns.startsWith('MLE\\Examples\\Tests\\Fixtures'));
   const isScript = basename(f).startsWith('2026_'); // migrations are anonymous classes
-  const cls = src.match(/(?:final\s+|abstract\s+)?(?:class|interface|enum|trait)\s+(\w+)/);
   // PSR-4 matters only for autoloaded fixtures; Pest test files are
   // function-based and discovered by glob, and migrations are anonymous.
   if (isFixture) {
     if (!cls) {
       console.log(`NO-CLASS: ${f}`);
       problems++;
-    } else if (basename(f, '.php') !== cls[1]) {
-      console.log(`PSR-4 MISMATCH: ${f} declares ${cls[1]}`);
-      problems++;
+    } else {
+      if (basename(f, '.php') !== cls[1]) {
+        console.log(`PSR-4 MISMATCH: ${f} declares ${cls[1]}`);
+        problems++;
+      }
+      // namespace path must match the file path under the autoload root
+      const expectedDir = ns
+        .replace('MLE\\Examples\\Tests\\', '')
+        .replace(/\\/g, '/');
+      const relDir = dirname(relative(join(root, 'tests'), f)).replaceAll('\\', '/');
+      if (relDir !== expectedDir) {
+        console.log(`NAMESPACE PATH MISMATCH: ${f} declares ${ns} (expected under tests/${expectedDir})`);
+        problems++;
+      }
     }
   }
   void isScript;

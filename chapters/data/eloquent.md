@@ -283,7 +283,7 @@ For aggregates, don't hydrate at all: `DB::table()->groupBy()` / `->count()` /
 
 The guardrails and batching APIs are stable across the whole range; the only
 authoring difference is `casts()` vs `$casts`. `Context` for request/job metadata
-is 10.48+ — see [Observability](../quality/observability.md).
+is 11.0+ — see [Observability](../quality/observability.md).
 
 ## Related
 

@@ -294,14 +294,15 @@ a queue-cycle later. Design the UX deliberately:
 |---|---|---|---|---|
 | Queued listeners + `ShouldQueue` | ✅ | ✅ | ✅ | ✅ |
 | Event discovery / explicit listener registration | ✅ | ✅ | ✅ | ✅ |
-| A formal command bus (`Bus::dispatchCommand`) in core | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
+| A formal command bus (`Bus::dispatchCommand`) in core | ❌ | ❌ | ❌ | ❌ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
 
-The ⚠️ row: do not assume a first-class command-bus (`dispatchCommand`-style)
-exists in your version — it is not part of the stable surface this chapter relies
-on. The portable mechanism is what level 1 shows: a command class + a handler class
-invoked explicitly (or dispatched as a job when async). If you want bus machinery,
-that's a deliberate, version-checked addition — not a given.
+The ❌ row (verified against framework tags 11.15, 12.x, 13.x): no first-class
+command-bus (`dispatchCommand`-style) exists in any release this handbook covers —
+it is not part of the stable surface this chapter relies on. The portable
+mechanism is what level 1 shows: a command class + a handler class invoked
+explicitly (or dispatched as a job when async). If you want bus machinery, that's
+a deliberate, version-checked addition — not a given.
 
 ## Related
 

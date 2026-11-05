@@ -18,7 +18,7 @@ GitHub Actions, one workflow, three jobs:
    (`scripts/check-verify-markers.mjs`).
 2. **`examples`** — the Testbench/Pest harness across the version matrix
    (Laravel 10/11/12/13 × PHP 8.2/8.3, SQLite + Redis service container).
-3. **`links-external`** — scheduled weekly lychee run for external URLs (not per-PR:
+3. **`external-links`** — scheduled weekly lychee run for external URLs (not per-PR:
    slow and flaky).
 
 Branch protection intent: `docs` + `examples` required on `main`; the `VERIFY` marker

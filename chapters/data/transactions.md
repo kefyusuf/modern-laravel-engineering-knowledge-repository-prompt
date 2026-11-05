@@ -351,11 +351,11 @@ fits in one statement's `WHERE`, prefer this. When it doesn't, take the lock —
   persisted. Use `RefreshDatabase` (re-runs migrations, true isolation) rather than
   `DatabaseTransactions` (wraps in a transaction that never commits — which hides
   commit-time behavior like `afterCommit` timing).
-- **Dispatch timing:** `Queue::fake()` before the action; run the action inside
-  `DB::transaction()`; assert `ShipOrder::assertNothingPushed()` until after the
-  commit, then asserted pushed. This is exactly what the ⚙️ harness encodes in
-  `examples/tests/TransactionsExamplesTest.php`
-  ([strategy](../../docs/examples.md)).
+- **Dispatch timing:** the ⚙️ harness encodes this with the REAL database queue:
+  dispatch `->afterCommit()` inside a transaction and count `jobs` rows — zero
+  before the commit, one after. Rows make the ordering claim observable without
+  trusting a fake's internals (`examples/tests/TransactionsExamplesTest.php`,
+  [strategy](../../docs/examples.md)).
 - **Lost updates:** two connections to the same in-memory database reproducing the
   interleave, asserting the atomic-update version never goes negative.
 - **Deadlock retry:** hard to reproduce honestly on SQLite; covered at the unit level

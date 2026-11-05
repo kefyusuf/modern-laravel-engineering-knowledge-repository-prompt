@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\DB;
 use MLE\Examples\Tests\Fixtures\Idempotency;
 
+uses()->group('idempotency');
+
 /**
  * Executed claims for chapters/messaging/idempotency.md.
  */

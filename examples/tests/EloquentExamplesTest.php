@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\LazyLoadingViolationException;
 use Illuminate\Support\Facades\DB;
 use MLE\Examples\Tests\Fixtures\Models\Inventory;
 
+uses()->group('eloquent');
+
 /**
  * Executed claims for chapters/data/eloquent.md.
  */
@@ -31,13 +33,14 @@ it('pages by id so concurrent mutation cannot skip rows', function () {
     /** @example-id eloquent/chunk-by-id */
     foreach (range(1, 10) as $i) {
         DB::table('orders')->insert([
-            'customer_id' => 1, 'sku_id' => 1, 'quantity' => 1,
+            'customer_id' => 1, 'sku_id' => $i, 'quantity' => 1,
             'status' => 'stale', 'placed_at' => now(),
         ]);
     }
 
     // chunkById: visited rows are deleted mid-iteration (the concurrent
     // mutation), but the id cursor keeps the iteration complete.
+    // sku_id varies per row: the harness unique index forbids duplicates.
     $visitedById = [];
     DB::table('orders')->chunkById(3, function ($chunk) use (&$visitedById) {
         $visitedById = array_merge($visitedById, $chunk->pluck('id')->all());
@@ -49,7 +52,7 @@ it('pages by id so concurrent mutation cannot skip rows', function () {
     // and silently skips unvisited rows — the production incident.
     foreach (range(1, 10) as $i) {
         DB::table('orders')->insert([
-            'customer_id' => 1, 'sku_id' => 1, 'quantity' => 1,
+            'customer_id' => 1, 'sku_id' => $i, 'quantity' => 1,
             'status' => 'stale', 'placed_at' => now(),
         ]);
     }

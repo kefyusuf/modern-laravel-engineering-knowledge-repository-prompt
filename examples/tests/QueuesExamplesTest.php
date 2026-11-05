@@ -5,6 +5,8 @@ use MLE\Examples\Tests\Fixtures\Queues\DeliverWebhook;
 use MLE\Examples\Tests\Fixtures\Queues\RefreshProductAvailability;
 use MLE\Examples\Tests\Fixtures\Queues\SendOrderInvoice;
 
+uses()->group('queues');
+
 /**
  * Executed claims for chapters/messaging/queues.md.
  */

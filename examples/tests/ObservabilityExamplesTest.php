@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 use MLE\Examples\Tests\Fixtures\CorrelateRequest;
 use MLE\Examples\Tests\Fixtures\SettleInvoice;
 
+uses()->group('observability');
+
 /**
  * Executed claims for chapters/quality/observability.md.
  */
@@ -38,6 +40,12 @@ it('correlates every log line of a request with its context', function () {
 
 it('re-hydrates context into queued jobs at processing time', function () {
     /** @example-id observability/job-context */
+    // The Context feature shipped in Laravel 11.0 (it does not exist on
+    // any 10.x release — verified against the v10.48.29 tag). Gate on the
+    // class itself so the matrix skips cleanly on 10.
+    if (! class_exists(\Illuminate\Log\Context\Repository::class)) {
+        $this->markTestSkipped('Illuminate\Log\Context requires Laravel 11+');
+    }
     config(['queue.default' => 'database']);
 
     // The dispatch site: context attached by the "request boundary".
@@ -62,5 +70,7 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    Context::flush();
+    if (class_exists(\Illuminate\Log\Context\Repository::class)) {
+        Context::flush();
+    }
 });

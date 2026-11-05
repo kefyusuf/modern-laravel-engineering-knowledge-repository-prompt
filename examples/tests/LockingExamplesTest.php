@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use MLE\Examples\Tests\Fixtures\Locking;
 
+uses()->group('locking');
+
 /**
  * Executed claims for chapters/data/locking.md.
  *
@@ -26,10 +28,12 @@ it('protects read-modify-write with a row lock and a unique-index backstop', fun
     // The backstop: a second active purchase for the same customer+sku
     // violates the unique index, and the whole transaction rolls back —
     // inventory is restored by the rollback, not by application code.
+    // (Catch the specific failure: a bare Throwable would swallow the
+    // test's own fail() if the constraint were somehow missing.)
     try {
         $fixture->purchase(1, 2, 100);
         $this->fail('expected unique constraint violation');
-    } catch (Throwable) {
+    } catch (\Illuminate\Database\QueryException) {
         expect(DB::table('inventories')->find(1)->available)->toBe(3);
         expect(DB::table('orders')->where('customer_id', 100)->count())->toBe(1);
     }

@@ -5,6 +5,8 @@ use MLE\Examples\Tests\Fixtures\DeliverOutboxMessage;
 use MLE\Examples\Tests\Fixtures\Outbox;
 use MLE\Examples\Tests\Fixtures\OutboxMessage;
 
+uses()->group('outbox');
+
 /**
  * Executed claims for chapters/messaging/outbox.md.
  *

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\DB;
 use MLE\Examples\Tests\Fixtures\Jobs\Shim;
 use MLE\Examples\Tests\Fixtures\Transactions;
 
+uses()->group('transactions');
+
 /**
  * Executed claims for chapters/data/transactions.md. Each test docblock maps
  * to a tagged example block via the harness mapping contract.
@@ -30,6 +32,7 @@ it('dispatches queued side effects only after the commit', function () {
 it('keeps external side effects outside the transaction boundary', function () {
     /** @example-id transactions/short-transactions */
     config(['queue.default' => 'database']);
+    DB::table('inventories')->insert(['id' => 1, 'available' => 5]);
 
     $fixture = new Transactions;
     $orderId = $fixture->placeOrder(1, 2, 10);

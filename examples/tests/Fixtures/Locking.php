@@ -37,32 +37,6 @@ final class Locking
     }
 
     /**
-     * locking/cache-lock-owner: scope key from the resource, TTL above the
-     * work duration, owner-guarded release.
-     *
-     * @return array{0: bool, 1: mixed}
-     */
-    public function publishReport(string $reportId, callable $work): array
-    {
-        $lock = Cache::lock("report:publish:{$reportId}", seconds: 30);
-        $ran = false;
-
-        try {
-            $lock->block(0); // never wait in the harness: immediate acquire or fail
-            $ran = true;
-            $result = $work();
-
-            return [true, $result];
-        } catch (LockTimeoutException) {
-            return [false, null];
-        } finally {
-            if ($ran) {
-                $lock->release();
-            }
-        }
-    }
-
-    /**
      * locking/without-overlapping + locking/lock-scope-mismatch: the scope
      * contract — mutex keys derived from the resource identity serialize
      * same-resource workers and stay independent across different resources.

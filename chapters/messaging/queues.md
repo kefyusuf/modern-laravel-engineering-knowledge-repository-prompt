@@ -250,7 +250,8 @@ final class RefreshProductAvailability implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $uniqueFor = 60; // seconds the lock lives after processing
+    public int $uniqueFor = 60; // seconds the dedupe lock lives while the job is PENDING
+                                // (released when processing completes)
 
     public function __construct(public readonly int $productId) {}
 
@@ -271,10 +272,10 @@ final class RefreshProductAvailability implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-`ShouldBeUnique` prevents a *second dispatch* while the first is queued/running (lock
-held via the cache store — it must be shared, see [Locking](../data/locking.md)). It
-does **not** make the job idempotent, and it does not dedupe once processing
-finished (that's `uniqueFor`'s TTL). If a duplicate execution would corrupt state,
+`ShouldBeUnique` prevents a *second dispatch* while the first is pending (the lock
+is held via the cache store — it must be shared, see [Locking](../data/locking.md),
+and is force-released when processing completes). It
+does **not** make the job idempotent. If a duplicate execution would corrupt state,
 the handle() body needs its own guard regardless.
 
 ### Timeout budgeting — the double-run trap

@@ -312,8 +312,19 @@ final class DeliverOutboxMessage implements ShouldQueue
     {
         $message = OutboxMessage::query()->find($this->outboxMessageId);
 
-        // Pruned or externally dispatched — nothing to do.
-        if ($message === null || $message->dispatched_at === null) {
+        if ($message === null) {
+            return; // pruned — nothing to deliver
+        }
+
+        if ($message->dispatched_at === null) {
+            // The relay's mark-update has not committed yet: a fast worker on
+            // a non-transactional queue (redis/SQS) can run this job BEFORE
+            // the mark lands. Dropping here would silently LOSE the event —
+            // release it and let the next cycle deliver (at-least-once).
+            // If the relay itself is dead, retries exhaust into failed-job
+            // alerting, which is the correct surface for that outage.
+            $this->release(2);
+
             return;
         }
 
@@ -393,25 +404,35 @@ FIFO end to end — you will not get it.
    duplicates. Now the crash window silently *loses* events. *Detection:* review —
    the "fix" looks reasonable. *Fix:* duplicates are the design; the consumer inbox
    absorbs them. Document it in the code.
-3. **SKIP LOCKED assumed everywhere.** *Root cause:* SQLite dev environment (and
+3. **A fast worker outruns the mark on a non-transactional queue.** *Root cause:*
+   with redis/SQS, the relay's `dispatch()` lands inside the claim transaction, but
+   the queue is external — a worker can run the job BEFORE the mark commits. A
+   handler that treats "unmarked row" as "nothing to do" drops the event: the
+   at-least-once guarantee quietly becomes at-most-once. *Detection:* events whose
+   outbox row says dispatched but whose consumer never logged a delivery.
+   *Fix:* the handler RELEASES unmarked rows back to the queue (as the reference
+   implementation does); exhausted retries surface the dead-relay case as failed
+   jobs. Note the harness cannot reproduce this race — its fake queue drains only
+   after the mark commits — so this invariant lives in the chapter, not the test.
+4. **SKIP LOCKED assumed everywhere.** *Root cause:* SQLite dev environment (and
    older MySQL/MariaDB) reject or ignore `SKIP LOCKED`; syntax errors in dev, or a
    full-table lock in prod-adjacent engines. *Detection:* SQL errors on relay in
    some environments only. *Fix:* feature-detect the capability; single-relay mode
    where unsupported (the harness runs SQLite and does exactly this).
-4. **Outbox table becomes the new hot spot.** *Root cause:* every write now also
+5. **Outbox table becomes the new hot spot.** *Root cause:* every write now also
    writes + later updates a row; under heavy write load the index churn dominates.
    *Detection:* write latency growth correlated with outbox volume; relay lag
    creeping. *Fix:* narrow index, partitioned/pruned table, batch mark-update, and
    eventually CDC (spectrum rung 5).
-5. **Payload drift.** *Root cause:* producer adds/renames a payload field without a
+6. **Payload drift.** *Root cause:* producer adds/renames a payload field without a
    version bump; consumers break on missing keys. *Detection:* consumer-side
    "undefined index" after deploys. *Fix:* schema_version + contract tests on the
    payload shape in the producer's test suite.
-6. **Relay starsves under long claim transactions.** *Root cause:* claiming too many
-   rows, or holding the claim transaction open while dispatching (dispatch should
-   be *after* the claim transaction closes). *Detection:* lock-wait errors on
-   outbox rows; relay lag variance. *Fix:* bounded batches; dispatch after commit
-   (as the reference implementation does).
+7. **Relay starves under oversized claim batches.** *Root cause:* claiming too many
+   rows holds row locks across a larger enqueue loop; other relays (and the mark
+   updates) wait. *Detection:* lock-wait errors on outbox rows; relay lag
+   variance. *Fix:* bounded batches — enqueueing is the only work the claim
+   transaction should ever do; the consumer's own I/O belongs to the queue worker.
 
 ## How to test it
 

@@ -113,7 +113,7 @@ request_id". Everything else in this chapter builds on it.
 ### Context that survives the queue hop
 
 Request context is worthless if the job that continues the work logs anonymously.
-The `Context` facade (10.48+/11+) is built for exactly this: values added before
+The `Context` facade (Laravel 11+) is built for exactly this: values added before
 dispatch are serialized with the job and re-hydrated when it processes.
 
 <!-- example: observability/job-context -->
@@ -261,13 +261,14 @@ lean; a log pipeline is itself an ops surface.
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
 | `Log::withContext()` | ✅ | ✅ | ✅ | ✅ |
-| `Context` facade | ✅ since 10.48 | ✅ | ✅ | ✅ |
-| `Context::addHidden()` / hidden values | ✅ since 10.48 | ✅ | ✅ | ✅ |
-| Automatic context→job hydration | ✅ since 10.48 | ✅ | ✅ | ✅ |
+| `Context` facade | ❌ | ✅ (since 11.0) | ✅ | ✅ |
+| `Context::addHidden()` / hidden values | ❌ | ✅ (since 11.0) | ✅ | ✅ |
+| Automatic context→job hydration | ❌ | ✅ (since 11.0) | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
 
-The `Context` feature shipped with Laravel 11 and was backported to 10.48 (March
-2024) — since composer resolves the newest 10.x, every supported install has it.
+The `Context` feature shipped with Laravel 11.0 — it does not exist on any 10.x
+release (verified against the v10.48.29 framework tag). Code that must run on
+Laravel 10 correlates jobs by passing ids explicitly in the job payload instead.
 
 ## Related
 

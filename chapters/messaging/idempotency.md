@@ -323,6 +323,13 @@ Design decisions this example encodes — each is a real production debate:
   retry window (typically 24h; know your clients' worst retry schedule).
 - **Payloads may contain PII** — you are storing request/response bodies; apply the
   same retention and access rules as the primary data.
+- **A deliberate boundary trade:** the middleware holds a `DB::transaction` (and the
+  key-row lock) across the whole endpoint action — the opposite instinct of
+  [Transactions](../data/transactions.md)' "keep the boundary short". The replay
+  guarantee requires claim + effect in one atomic section, so the trade is
+  defensible *only while the handler is short*: keep external I/O out of claimed
+  endpoints (queue it), or the key-row lock becomes the wide boundary that chapter
+  warns about.
 
 ### Natural keys and upserts
 

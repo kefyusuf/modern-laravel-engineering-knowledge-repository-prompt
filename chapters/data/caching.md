@@ -141,7 +141,7 @@ When a hot key expires, N concurrent requests all recompute. Two complementary
 fixes, both in the harness:
 
 **Stale-while-revalidate** — serve the stale value to readers while one request
-refreshes it. Laravel ships this as `Cache::flexible()` (since 11.9):
+refreshes it. Laravel ships this as `Cache::flexible()` (since 11.23):
 
 <!-- example: caching/flexible-swr -->
 ```php
@@ -154,7 +154,7 @@ final class ExchangeRates
     public function get(): array
     {
         // Fresh for 5 minutes; may serve the stale value for another 10 while
-        // a background refresh happens. Requires Laravel 11.9+.
+        // a background refresh happens. Requires Laravel 11.23+.
         return Cache::flexible('rates:usd:eur', [300, 600], function () {
             return $this->fetchFromProvider(); // slow third-party call
         });
@@ -191,6 +191,7 @@ final class HomepageSpotlight
         // bounds the staleness — two different jobs.
         $lock = $this->cache->lock("lock:{$key}", 30);
         try {
+            $lock->block(0); // one rebuilder wins; the rest take the fallback path
             $value = $this->rebuild();
             $this->cache->put($key, $value, now()->addMinutes(10));
 
@@ -284,8 +285,8 @@ final class TenantSettings
 ### What you store matters
 
 Cache **plain values, arrays, or DTOs** — not Eloquent models. A serialized model
-rehydrates without its relations, can conflict with the identity map in the current
-request, and quietly breaks when attributes change. Store exactly the shape the
+rehydrates without its relations, carries stale partial state, and silently breaks
+when attributes change. Store exactly the shape the
 consumer needs, and version the key when the shape changes.
 
 ### Octane caveat
@@ -374,14 +375,16 @@ semantics will betray you on another (Octane — roadmap).
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
-| `Cache::flexible()` stale-while-revalidate | ❌ not available | ✅ since 11.9 | ✅ | ✅ |
+| `Cache::flexible()` stale-while-revalidate | ❌ not available | ✅ since 11.23 | ✅ | ✅ |
 | Cache tags on redis/memcached/array | ✅ | ✅ | ✅ | ✅ |
 | Cache tags on file/database/dynamodb stores | ❌ | ❌ | ❌ | ❌ |
 | `cache:prune-stale-tags` | ✅ | ✅ | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
 
 The `flexible()` row is the only behavioral fork that affects this chapter's code —
-the lock-on-miss example exists precisely as the Laravel-10-compatible equivalent.
+the lock-on-miss example exists precisely as the Laravel-10-compatible equivalent
+(flexible requires 11.23; the lock-on-miss pattern needs nothing newer than
+Laravel 10).
 
 ## Related
 

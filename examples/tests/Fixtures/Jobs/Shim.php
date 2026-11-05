@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
  * transaction-boundary tests. Carries only a reference id, as the
  * chapters prescribe.
  */
-final class Shim implements ShouldQueue
+final class Shim
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

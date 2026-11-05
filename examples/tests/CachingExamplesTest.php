@@ -4,6 +4,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use MLE\Examples\Tests\Fixtures\Caching;
 
+uses()->group('caching');
+
 /**
  * Executed claims for chapters/data/caching.md.
  */
@@ -32,11 +34,11 @@ it('caches a read with a bounded TTL and invalidates explicitly', function () {
 
 it('serves stale-while-revalidate within the flexible window', function () {
     /** @example-id caching/flexible-swr */
-    // Cache::flexible() exists since Laravel 11.9 — the claim is
+    // Cache::flexible() exists since Laravel 11.23 — the claim is
     // version-gated and the harness skips below it, matching the
     // chapter's version table.
-    if (version_compare(app()->version(), '11.9.0', '<')) {
-        $this->markTestSkipped('Cache::flexible() requires Laravel 11.9+');
+    if (version_compare(app()->version(), '11.23.0', '<')) {
+        $this->markTestSkipped('Cache::flexible() requires Laravel 11.23+');
     }
 
     $resolverCalls = 0;

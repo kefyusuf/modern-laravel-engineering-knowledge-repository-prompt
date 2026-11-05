@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\DB;
 use MLE\Examples\Tests\Fixtures\Cqrs;
 
+uses()->group('cqrs');
+
 /**
  * Executed claims for chapters/architecture/cqrs.md.
  */
