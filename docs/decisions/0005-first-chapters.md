@@ -41,3 +41,17 @@ CI/CD) are listed in the README roadmap **without stub files**.
   `Related` sections with a "roadmap" marker, not as dead links — CI link checker
   enforces this.
 - Chapter order in the README reflects a suggested reading order, not completion order.
+
+## Wave 2 (2026-11)
+
+Same policy, next three by failure cost and dependency fit:
+
+| Chapter | Why next |
+|---|---|
+| `data/eloquent` | The daily-driver ORM's production costs (N+1, hydration, chunking) — referenced by transactions, queues, caching, CQRS. |
+| `quality/observability` | Every chapter's *How to operate it* section depends on its primitives; makes the ops half of the handbook real. |
+| `runtime/octane` | First runtime chapter; the state-discipline failure class links to caching/observability incidents. |
+
+`octane` ships 📖 (no executable claims in the harness — the CI matrix has no
+Swoole/FrankenPHP runtime); `eloquent` and `observability` ship ⚙️ with 5 new
+mapped examples.

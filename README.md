@@ -18,9 +18,9 @@ green CI run this means *encoded*, not *executed*. Content licensing: [CC BY 4.0
 - [Runnable examples](docs/examples.md) — what ⚙️ means and how the harness works.
 - [Decisions](docs/decisions/) — why the repository is built the way it is.
 
-Suggested reading order for the first wave: **transactions → locking → queues →
-idempotency → outbox → caching → modular monolith → CQRS**. Later chapters assume the
-earlier ones' vocabulary.
+Suggested reading order: **transactions → locking → queues → idempotency →
+outbox → caching → eloquent → modular monolith → CQRS → observability → octane**.
+Later chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -31,6 +31,7 @@ earlier ones' vocabulary.
 | [Transactions](chapters/data/transactions.md) | ⚙️ | Correctness under concurrent writes: isolation levels, `afterCommit`, and the transaction boundaries Laravel doesn't draw for you. |
 | [Locking](chapters/data/locking.md) | ⚙️ | Mutual exclusion without deadlocks: `Cache::lock`, DB locks, `withoutOverlapping`, and choosing scope before mechanism. |
 | [Caching](chapters/data/caching.md) | ⚙️ | Fresh-enough data at scale: stampede protection, `flexible()`, invalidation strategies that don't require hope. |
+| [Eloquent at scale](chapters/data/eloquent.md) | ⚙️ | The three costs that dominate Eloquent under load — N+1, hydration, unbatched writes — and the guardrails that make them test failures. |
 
 ### Messaging & integration
 
@@ -47,6 +48,13 @@ earlier ones' vocabulary.
 | [The modular monolith](chapters/architecture/modular-monolith.md) | 📖 | Well-bounded modules in one deployable: boundaries, communication rules, and the enforcement that keeps a monolith from rotting. |
 | [CQRS](chapters/architecture/cqrs.md) | ⚙️ | Separating read and write models *as much as the problem requires* — from simple query objects to eventual consistency. |
 
+### Quality & runtime
+
+| Chapter | Trust | One-line summary |
+|---|---|---|
+| [Observability](chapters/quality/observability.md) | ⚙️ | Request context that survives the queue hop, structured logs worth searching, and the four signals that answer 3am questions. |
+| [Octane](chapters/runtime/octane.md) | 📖 | Boot once, serve many — the state discipline that separates Octane's latency win from cross-request data leaks. |
+
 **Trust marks:** ⚙️ = load-bearing examples executed in CI ([examples/](examples/README.md))
 · 📖 = verified against official docs for stated versions · ⚠️ = contains marked
 engineering judgment.
@@ -59,10 +67,10 @@ drafting; the [content standard](docs/content-standard.md) defines done.
 
 - **Architecture:** domain-driven design in Laravel · domain/application/infrastructure
   boundaries · event-driven architecture
-- **Data:** Redis as infrastructure · database performance · Eloquent at scale
+- **Data:** Redis as infrastructure · database performance
 - **Interfaces & security:** API design · security · authorization
-- **Quality:** observability · testing beyond the happy path
-- **Runtime:** Octane · FrankenPHP · deployment · CI/CD for Laravel
+- **Quality:** testing beyond the happy path
+- **Runtime:** FrankenPHP (standalone) · deployment · CI/CD for Laravel
 
 ## Contributing
 
