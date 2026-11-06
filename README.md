@@ -25,8 +25,9 @@ licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 
 Suggested reading order: **transactions → locking → queues → idempotency →
 outbox → caching → redis → eloquent → database-performance → modular monolith →
-boundaries → eda → CQRS → api-design → authorization → observability → octane →
-testing → deployment → ci-cd**. Later chapters assume the earlier ones' vocabulary.
+boundaries → eda → ddd → CQRS → api-design → authorization → security →
+observability → octane → testing → deployment → ci-cd → frankenphp**. Later
+chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -56,6 +57,7 @@ testing → deployment → ci-cd**. Later chapters assume the earlier ones' voca
 | [The modular monolith](chapters/architecture/modular-monolith.md) | 📖 | Well-bounded modules in one deployable: boundaries, communication rules, and the enforcement that keeps a monolith from rotting. |
 | [Boundaries](chapters/architecture/boundaries.md) | 📖 | Domain / application / infrastructure as a dependency rule, translated into Laravel artifacts — and what the layering never justifies. |
 | [Event-driven architecture](chapters/architecture/eda.md) | 📖 | Announcing facts instead of calling procedures: the reliability ladder, event contracts, choreography vs orchestration. |
+| [Domain-driven design](chapters/architecture/ddd.md) | ⚙️ | The pragmatic DDD translation: aggregates as consistency boundaries with executable invariants, value objects, and where the ceremony stops paying. |
 | [CQRS](chapters/architecture/cqrs.md) | ⚙️ | Separating read and write models *as much as the problem requires* — from simple query objects to eventual consistency. |
 
 ### Interfaces
@@ -64,6 +66,7 @@ testing → deployment → ci-cd**. Later chapters assume the earlier ones' voca
 |---|---|---|
 | [API design](chapters/interfaces/api-design.md) | ⚙️ | Resource, error, versioning, and abuse-budget contracts that survive client integrations — rate-limit windows you can execute. |
 | [Authorization](chapters/interfaces/authorization.md) | ⚙️ | One decision point per rule: policies with tenant scope, visible bypasses, and denials tested as seriously as grants. |
+| [Security](chapters/interfaces/security.md) | ⚙️ | Injection, mass assignment, XSS, CSRF, secrets — the disciplines Laravel doesn't force on you, each closed by a test or a gate. |
 
 ### Quality & runtime
 
@@ -74,6 +77,7 @@ testing → deployment → ci-cd**. Later chapters assume the earlier ones' voca
 | [Octane](chapters/runtime/octane.md) | 📖 | Boot once, serve many — the state discipline that separates Octane's latency win from cross-request data leaks. |
 | [Deployment](chapters/runtime/deployment.md) | 📖 | The release flow that survives overlap: expand/contract migrations, worker reloads, health gates, rehearsed rollbacks. |
 | [CI/CD for Laravel](chapters/runtime/ci-cd.md) | 📖 | The pipeline that mirrors your support reality: static gates, the version matrix, evidence-backed trust marks. |
+| [FrankenPHP standalone](chapters/runtime/frankenphp.md) | 📖 | One binary as web server + PHP runtime: classic vs worker mode, the embed story, and the state discipline it inherits. |
 
 **Trust marks:** ⚙️ = load-bearing examples executed in CI ([examples/](examples/README.md))
 · 📖 = verified against official docs for stated versions · ⚠️ = contains marked
@@ -81,13 +85,15 @@ engineering judgment.
 
 ## Roadmap
 
-Chapters below are **wanted, not written** — no stubs on purpose
-([decision 0005](docs/decisions/0005-first-chapters.md)). Open an issue before
-drafting; the [content standard](docs/content-standard.md) defines done.
+The original topic list is now fully covered. Remaining ideas — smaller,
+deeper, or newer than the core chapters — live here as they mature:
 
-- **Architecture:** domain-driven design in Laravel
-- **Interfaces & security:** security (CSRF/mass-assignment/secrets/headers)
-- **Runtime:** FrankenPHP (standalone)
+- **Deeper dives:** saga/process-manager patterns · message-broker topologies ·
+  online DDL tooling · content-security-policy tuning · row-level security ·
+  preview environments & merge queues · Mercure/streaming patterns
+
+Start with a [chapter proposal](.github/ISSUE_TEMPLATE/chapter-proposal.yml);
+the [content standard](docs/content-standard.md) defines done.
 
 ## Contributing
 

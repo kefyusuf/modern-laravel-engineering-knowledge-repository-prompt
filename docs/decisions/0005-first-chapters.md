@@ -85,3 +85,15 @@ mapped examples.
 | `interfaces/authorization` | Policies with tenant scope as executable security claims (⚙️ — users table + policy fixtures added to the harness). |
 
 20 chapters total; mapping grows to 41↔41.
+
+## Wave 6 (2026-11) — the original topic list completed
+
+| Chapter | Why next |
+|---|---|
+| `interfaces/security` | The disciplines Laravel doesn't force: injection (executed: the payload runs in the vulnerable construction, dies in the parameterized one), mass assignment (executed: silent discard vs loud guard), XSS/CSRF/secrets posture. |
+| `architecture/ddd` | The pragmatic DDD translation — the aggregate-invariant claim executed framework-free; closes the architecture arc. |
+| `runtime/frankenphp` | The serving-stack completion — classic vs worker vs embed, inheriting Octane's state discipline; verified against FrankenPHP docs (Laravel's official path is Octane's integration). |
+
+**23 chapters total — the handbook's original 25-topic list is fully covered;
+mapping closes at 44↔44.** Further chapters graduate from the roadmap as
+concrete needs appear.
