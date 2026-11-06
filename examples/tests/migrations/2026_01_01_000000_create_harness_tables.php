@@ -116,5 +116,13 @@ return new class extends Migration
             $table->unsignedBigInteger('shipments_total');
             $table->timestamp('updated_at');
         });
+
+        // testing chapter: deliberately index-free table for the race
+        // interleave demonstration (the naive check-then-insert target).
+        Schema::create('race_log', function (Blueprint $table) {
+            $table->id();
+            $table->string('key');
+            $table->timestamp('created_at');
+        });
     }
 };

@@ -5,10 +5,14 @@ Not a syntax tutorial: every chapter answers what problem a technique solves, wh
 avoid it, what a production implementation requires, how it is tested and operated,
 and exactly which Laravel/PHP versions change the answer.
 
-**Status: initial build (2026-09).** Chapters marked ⚙️ have their load-bearing
+**Status: initial build (2026-11).** Chapters marked ⚙️ have their load-bearing
 examples encoded as executable tests ([details](docs/examples.md)); until the first
 green CI run this means *encoded*, not *executed*. Content licensing: [CC BY 4.0](LICENSE.md)
 · code: [MIT](LICENSE-CODE).
+
+> **About the repository name:** the `-prompt` suffix is an artifact of how this
+> repository was created; the content is the handbook itself — nothing in it is
+> a prompt or generated-on-demand text.
 
 ## How to read this
 
@@ -19,8 +23,8 @@ green CI run this means *encoded*, not *executed*. Content licensing: [CC BY 4.0
 - [Decisions](docs/decisions/) — why the repository is built the way it is.
 
 Suggested reading order: **transactions → locking → queues → idempotency →
-outbox → caching → eloquent → modular monolith → CQRS → observability → octane**.
-Later chapters assume the earlier ones' vocabulary.
+outbox → caching → redis → eloquent → modular monolith → CQRS → observability →
+octane → testing → deployment**. Later chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -31,6 +35,7 @@ Later chapters assume the earlier ones' vocabulary.
 | [Transactions](chapters/data/transactions.md) | ⚙️ | Correctness under concurrent writes: isolation levels, `afterCommit`, and the transaction boundaries Laravel doesn't draw for you. |
 | [Locking](chapters/data/locking.md) | ⚙️ | Mutual exclusion without deadlocks: `Cache::lock`, DB locks, `withoutOverlapping`, and choosing scope before mechanism. |
 | [Caching](chapters/data/caching.md) | ⚙️ | Fresh-enough data at scale: stampede protection, `flexible()`, invalidation strategies that don't require hope. |
+| [Redis as infrastructure](chapters/data/redis.md) | ⚙️ | The decisions that matter once Redis is load-bearing: client choice, memory and eviction policy, durability expectations, failure drills. |
 | [Eloquent at scale](chapters/data/eloquent.md) | ⚙️ | The three costs that dominate Eloquent under load — N+1, hydration, unbatched writes — and the guardrails that make them test failures. |
 
 ### Messaging & integration
@@ -53,7 +58,9 @@ Later chapters assume the earlier ones' vocabulary.
 | Chapter | Trust | One-line summary |
 |---|---|---|
 | [Observability](chapters/quality/observability.md) | ⚙️ | Request context that survives the queue hop, structured logs worth searching, and the four signals that answer 3am questions. |
+| [Testing the failure paths](chapters/quality/testing.md) | ⚙️ | Deterministic races, failure injection at the seam, frozen time — the toolkit every chapter's *How to test it* assumes. |
 | [Octane](chapters/runtime/octane.md) | 📖 | Boot once, serve many — the state discipline that separates Octane's latency win from cross-request data leaks. |
+| [Deployment](chapters/runtime/deployment.md) | 📖 | The release flow that survives overlap: expand/contract migrations, worker reloads, health gates, rehearsed rollbacks. |
 
 **Trust marks:** ⚙️ = load-bearing examples executed in CI ([examples/](examples/README.md))
 · 📖 = verified against official docs for stated versions · ⚠️ = contains marked
@@ -67,10 +74,9 @@ drafting; the [content standard](docs/content-standard.md) defines done.
 
 - **Architecture:** domain-driven design in Laravel · domain/application/infrastructure
   boundaries · event-driven architecture
-- **Data:** Redis as infrastructure · database performance
+- **Data:** database performance
 - **Interfaces & security:** API design · security · authorization
-- **Quality:** testing beyond the happy path
-- **Runtime:** FrankenPHP (standalone) · deployment · CI/CD for Laravel
+- **Runtime:** FrankenPHP (standalone) · CI/CD for Laravel
 
 ## Contributing
 

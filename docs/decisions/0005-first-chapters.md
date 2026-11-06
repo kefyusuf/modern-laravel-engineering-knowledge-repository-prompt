@@ -55,3 +55,13 @@ Same policy, next three by failure cost and dependency fit:
 `octane` ships 📖 (no executable claims in the harness — the CI matrix has no
 Swoole/FrankenPHP runtime); `eloquent` and `observability` ship ⚙️ with 5 new
 mapped examples.
+
+## Wave 3 (2026-11)
+
+| Chapter | Why next |
+|---|---|
+| `quality/testing` | The most-referenced roadmap topic — every chapter's *How to test it* leans on its toolkit; also encodes the RED side of the interleave technique. |
+| `data/redis` | Referenced by caching/locking/queues; its tests are the first to use `redisRequired()` — executed against CI's Redis service, skipped on laptops. |
+| `runtime/deployment` | Completes the release story the queue/octane chapters start; 📖 (procedure claims, no harness-verifiable behavior). |
+
+14 chapters total; mapping grows to 35↔35.
