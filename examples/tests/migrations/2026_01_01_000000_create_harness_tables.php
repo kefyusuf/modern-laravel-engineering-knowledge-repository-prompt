@@ -28,6 +28,8 @@ return new class extends Migration
             $table->timestamp('invoiced_at')->nullable();
             $table->timestamp('placed_at')->nullable();
             $table->unique(['customer_id', 'sku_id', 'status']);
+            // The access-path subject for the performance chapter.
+            $table->index(['status', 'placed_at']);
         });
 
         // idempotency / outbox inbox

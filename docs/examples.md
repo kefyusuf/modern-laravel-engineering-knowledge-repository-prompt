@@ -74,14 +74,14 @@ gracefully on a laptop without services.
 ## First execution (recorded 2026-11)
 
 **Executed.** The suite runs locally in Docker — `php:8.3-cli` + Composer + a
-`redis:7-alpine` service — across the full matrix:
+`redis:7-alpine` service — across the full matrix (re-run after wave 4):
 
 | Cell | Result |
 |---|---|
-| Laravel 10.50.4 / Testbench 8 / PHP 8.3 | 35 passed + 2 skips (`flexible` ❌ on 10, `Context` ❌ on 10 — gates match the chapters' version tables) |
-| Laravel 11.57.1 / Testbench 9 / PHP 8.3 | **37/37 passed** |
-| Laravel 12.71.0 / Testbench 10 / PHP 8.3 | **37/37 passed** |
-| Laravel 13.40.0 / Testbench 11 / PHP 8.3 | **37/37 passed** |
+| Laravel 10.50.4 / Testbench 8 / PHP 8.3 | 37 passed + 2 skips (`flexible` ❌ on 10, `Context` ❌ on 10 — gates match the chapters' version tables) |
+| Laravel 11.57.1 / Testbench 9 / PHP 8.3 | **39/39 passed** |
+| Laravel 12.71.0 / Testbench 10 / PHP 8.3 | **39/39 passed** |
+| Laravel 13.40.0 / Testbench 11 / PHP 8.3 | **39/39 passed** |
 
 The first execution surfaced and fixed five real harness defects (`Pest.php`'s
 `->in()` scoping, a fixture missing `ShouldQueue`, the failed-jobs

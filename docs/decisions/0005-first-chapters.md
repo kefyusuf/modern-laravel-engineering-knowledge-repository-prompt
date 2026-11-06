@@ -65,3 +65,13 @@ mapped examples.
 | `runtime/deployment` | Completes the release story the queue/octane chapters start; 📖 (procedure claims, no harness-verifiable behavior). |
 
 14 chapters total; mapping grows to 35↔35.
+
+## Wave 4 (2026-11)
+
+| Chapter | Why next |
+|---|---|
+| `data/database-performance` | Plans-over-guesses with executable claims (EXPLAIN plan assertion, keyset-vs-offset stability, bulk-insert round trips) — the layer under Eloquent at scale. |
+| `architecture/boundaries` | The most-referenced missing chapter (modular monolith, CQRS, transactions all lean on it); structural, 📖. |
+| `runtime/ci-cd` | Closes the loop the harness started — this repository's own ci.yml is the living example; 📖. |
+
+17 chapters total; mapping grows to 38↔38.

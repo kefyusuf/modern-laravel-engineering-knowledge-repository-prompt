@@ -24,8 +24,9 @@ licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 - [Decisions](docs/decisions/) — why the repository is built the way it is.
 
 Suggested reading order: **transactions → locking → queues → idempotency →
-outbox → caching → redis → eloquent → modular monolith → CQRS → observability →
-octane → testing → deployment**. Later chapters assume the earlier ones' vocabulary.
+outbox → caching → redis → eloquent → database-performance → modular monolith →
+boundaries → CQRS → observability → octane → testing → deployment → CI/CD**.
+Later chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -38,6 +39,7 @@ octane → testing → deployment**. Later chapters assume the earlier ones' voc
 | [Caching](chapters/data/caching.md) | ⚙️ | Fresh-enough data at scale: stampede protection, `flexible()`, invalidation strategies that don't require hope. |
 | [Redis as infrastructure](chapters/data/redis.md) | ⚙️ | The decisions that matter once Redis is load-bearing: client choice, memory and eviction policy, durability expectations, failure drills. |
 | [Eloquent at scale](chapters/data/eloquent.md) | ⚙️ | The three costs that dominate Eloquent under load — N+1, hydration, unbatched writes — and the guardrails that make them test failures. |
+| [Database performance](chapters/data/database-performance.md) | ⚙️ | Plans over guesses: access paths, round trips, and pagination that doesn't degrade — with the assertions to keep them honest. |
 
 ### Messaging & integration
 
@@ -52,6 +54,7 @@ octane → testing → deployment**. Later chapters assume the earlier ones' voc
 | Chapter | Trust | One-line summary |
 |---|---|---|
 | [The modular monolith](chapters/architecture/modular-monolith.md) | 📖 | Well-bounded modules in one deployable: boundaries, communication rules, and the enforcement that keeps a monolith from rotting. |
+| [Boundaries](chapters/architecture/boundaries.md) | 📖 | Domain / application / infrastructure as a dependency rule, translated into Laravel artifacts — and what the layering never justifies. |
 | [CQRS](chapters/architecture/cqrs.md) | ⚙️ | Separating read and write models *as much as the problem requires* — from simple query objects to eventual consistency. |
 
 ### Quality & runtime
@@ -62,6 +65,7 @@ octane → testing → deployment**. Later chapters assume the earlier ones' voc
 | [Testing the failure paths](chapters/quality/testing.md) | ⚙️ | Deterministic races, failure injection at the seam, frozen time — the toolkit every chapter's *How to test it* assumes. |
 | [Octane](chapters/runtime/octane.md) | 📖 | Boot once, serve many — the state discipline that separates Octane's latency win from cross-request data leaks. |
 | [Deployment](chapters/runtime/deployment.md) | 📖 | The release flow that survives overlap: expand/contract migrations, worker reloads, health gates, rehearsed rollbacks. |
+| [CI/CD for Laravel](chapters/runtime/ci-cd.md) | 📖 | The pipeline that mirrors your support reality: static gates, the version matrix, evidence-backed trust marks. |
 
 **Trust marks:** ⚙️ = load-bearing examples executed in CI ([examples/](examples/README.md))
 · 📖 = verified against official docs for stated versions · ⚠️ = contains marked
@@ -73,11 +77,9 @@ Chapters below are **wanted, not written** — no stubs on purpose
 ([decision 0005](docs/decisions/0005-first-chapters.md)). Open an issue before
 drafting; the [content standard](docs/content-standard.md) defines done.
 
-- **Architecture:** domain-driven design in Laravel · domain/application/infrastructure
-  boundaries · event-driven architecture
-- **Data:** database performance
+- **Architecture:** domain-driven design in Laravel · event-driven architecture
 - **Interfaces & security:** API design · security · authorization
-- **Runtime:** FrankenPHP (standalone) · CI/CD for Laravel
+- **Runtime:** FrankenPHP (standalone)
 
 ## Contributing
 
