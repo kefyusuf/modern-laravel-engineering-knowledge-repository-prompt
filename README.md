@@ -25,8 +25,8 @@ licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 
 Suggested reading order: **transactions → locking → queues → idempotency →
 outbox → caching → redis → eloquent → database-performance → modular monolith →
-boundaries → CQRS → observability → octane → testing → deployment → CI/CD**.
-Later chapters assume the earlier ones' vocabulary.
+boundaries → eda → CQRS → api-design → authorization → observability → octane →
+testing → deployment → ci-cd**. Later chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -55,7 +55,15 @@ Later chapters assume the earlier ones' vocabulary.
 |---|---|---|
 | [The modular monolith](chapters/architecture/modular-monolith.md) | 📖 | Well-bounded modules in one deployable: boundaries, communication rules, and the enforcement that keeps a monolith from rotting. |
 | [Boundaries](chapters/architecture/boundaries.md) | 📖 | Domain / application / infrastructure as a dependency rule, translated into Laravel artifacts — and what the layering never justifies. |
+| [Event-driven architecture](chapters/architecture/eda.md) | 📖 | Announcing facts instead of calling procedures: the reliability ladder, event contracts, choreography vs orchestration. |
 | [CQRS](chapters/architecture/cqrs.md) | ⚙️ | Separating read and write models *as much as the problem requires* — from simple query objects to eventual consistency. |
+
+### Interfaces
+
+| Chapter | Trust | One-line summary |
+|---|---|---|
+| [API design](chapters/interfaces/api-design.md) | ⚙️ | Resource, error, versioning, and abuse-budget contracts that survive client integrations — rate-limit windows you can execute. |
+| [Authorization](chapters/interfaces/authorization.md) | ⚙️ | One decision point per rule: policies with tenant scope, visible bypasses, and denials tested as seriously as grants. |
 
 ### Quality & runtime
 
@@ -77,8 +85,8 @@ Chapters below are **wanted, not written** — no stubs on purpose
 ([decision 0005](docs/decisions/0005-first-chapters.md)). Open an issue before
 drafting; the [content standard](docs/content-standard.md) defines done.
 
-- **Architecture:** domain-driven design in Laravel · event-driven architecture
-- **Interfaces & security:** API design · security · authorization
+- **Architecture:** domain-driven design in Laravel
+- **Interfaces & security:** security (CSRF/mass-assignment/secrets/headers)
 - **Runtime:** FrankenPHP (standalone)
 
 ## Contributing

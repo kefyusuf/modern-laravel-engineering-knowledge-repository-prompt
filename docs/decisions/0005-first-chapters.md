@@ -75,3 +75,13 @@ mapped examples.
 | `runtime/ci-cd` | Closes the loop the harness started — this repository's own ci.yml is the living example; 📖. |
 
 17 chapters total; mapping grows to 38↔38.
+
+## Wave 5 (2026-11)
+
+| Chapter | Why next |
+|---|---|
+| `architecture/eda` | Completes the event arc (outbox → CQRS → EDA): the decision framework and reliability ladder, 📖. |
+| `interfaces/api-design` | The transport contract clients depend on — rate-limit window semantics executed ⚙️. |
+| `interfaces/authorization` | Policies with tenant scope as executable security claims (⚙️ — users table + policy fixtures added to the harness). |
+
+20 chapters total; mapping grows to 41↔41.

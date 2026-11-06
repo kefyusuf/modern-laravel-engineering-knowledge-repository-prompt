@@ -12,7 +12,7 @@ class Order extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['customer_id', 'sku_id', 'quantity', 'status', 'placed_at', 'merchant_id'];
+    protected $fillable = ['customer_id', 'sku_id', 'quantity', 'status', 'placed_at', 'merchant_id', 'tenant_id'];
 
     public function inventory(): BelongsTo
     {

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->unsignedBigInteger('sku_id')->nullable();
             $table->unsignedBigInteger('merchant_id')->nullable();
+            $table->unsignedBigInteger('tenant_id')->nullable();
             $table->unsignedInteger('quantity')->default(1);
             $table->string('status')->default('pending');
             $table->timestamp('invoiced_at')->nullable();
@@ -30,6 +31,13 @@ return new class extends Migration
             $table->unique(['customer_id', 'sku_id', 'status']);
             // The access-path subject for the performance chapter.
             $table->index(['status', 'placed_at']);
+        });
+
+        // authorization chapter subjects
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('tenant_id')->nullable();
+            $table->boolean('is_admin')->default(false);
         });
 
         // idempotency / outbox inbox
