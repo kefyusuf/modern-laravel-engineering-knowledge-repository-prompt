@@ -12,21 +12,34 @@ uses()->group('eloquent');
  */
 it('turns lazy loading into a loud failure when the guard is on', function () {
     /** @example-id eloquent/lazy-loading-guard */
-    Inventory::create(['id' => 1, 'available' => 5]);
+    // NOTE (Laravel 12 behavior, verified in source): Builder::hydrate()
+    // copies the static guard onto hydrated instances only when the result
+    // set has MORE THAN ONE row — a single first() model does NOT carry the
+    // flag. The realistic N+1 (a listing) is exactly the multi-row case.
+    foreach (range(1, 2) as $i) {
+        Inventory::create(['id' => $i, 'available' => 5]);
+    }
     DB::table('orders')->insert([
         ['customer_id' => 1, 'sku_id' => 1, 'quantity' => 1, 'status' => 'open', 'placed_at' => now()],
     ]);
 
     Model::preventLazyLoading(true);
 
-    $inventory = Inventory::query()->first();
+    $inventories = Inventory::query()->get();
 
     // Unguarded relation access: the N+1 becomes an exception, not a query.
-    expect(fn () => $inventory->orders)->toThrow(LazyLoadingViolationException::class);
+    // The violation class moved namespaces in Laravel 12 (verified in the
+    // framework source): Illuminate\Database\Eloquent\ on 10–11,
+    // Illuminate\Database\ on 12+.
+    $violationClass = class_exists(\Illuminate\Database\LazyLoadingViolationException::class)
+        ? \Illuminate\Database\LazyLoadingViolationException::class
+        : \Illuminate\Database\Eloquent\LazyLoadingViolationException::class;
+
+    expect(fn () => $inventories[0]->orders)->toThrow($violationClass);
 
     // Eager-loaded access is untouched.
-    $eager = Inventory::query()->with('orders')->first();
-    expect($eager->orders)->toHaveCount(1);
+    $eager = Inventory::query()->with('orders')->get();
+    expect($eager[0]->orders)->toHaveCount(1);
 });
 
 it('pages by id so concurrent mutation cannot skip rows', function () {

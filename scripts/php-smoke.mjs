@@ -16,8 +16,10 @@ const autoloadRoot = 'tests'; // composer autoload-dev: MLE\Examples\Tests\ => t
 function walk(dir, acc = []) {
   for (const e of readdirSync(dir)) {
     const p = join(dir, e);
-    if (statSync(p).isDirectory()) walk(p, acc);
-    else if (e.endsWith('.php')) acc.push(p);
+    if (statSync(p).isDirectory()) {
+      if (['vendor', 'node_modules', '.phpunit.cache', '.git'].includes(e)) continue;
+      walk(p, acc);
+    } else if (e.endsWith('.php')) acc.push(p);
   }
   return acc;
 }

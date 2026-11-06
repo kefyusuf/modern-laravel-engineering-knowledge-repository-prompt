@@ -71,9 +71,20 @@ composer install
 Redis-dependent tests auto-skip when no Redis is reachable, so the suite degrades
 gracefully on a laptop without services.
 
-## First execution caveat
+## First execution (recorded 2026-11)
 
-Until this repository's CI has run at least once with the harness green, the ⚙️ mark
-means "encoded as a test", not "executed on a green run". The README badge and each
-chapter's status will be flipped to "executed" as matrix jobs pass. Track this in the
-repository's first CI run.
+**Executed.** The suite runs locally in Docker — `php:8.3-cli` + Composer + a
+`redis:7-alpine` service — across the full matrix:
+
+| Cell | Result |
+|---|---|
+| Laravel 10.50.4 / Testbench 8 / PHP 8.3 | 35 passed + 2 skips (`flexible` ❌ on 10, `Context` ❌ on 10 — gates match the chapters' version tables) |
+| Laravel 11.57.1 / Testbench 9 / PHP 8.3 | **37/37 passed** |
+| Laravel 12.71.0 / Testbench 10 / PHP 8.3 | **37/37 passed** |
+| Laravel 13.40.0 / Testbench 11 / PHP 8.3 | **37/37 passed** |
+
+The first execution surfaced and fixed five real harness defects (`Pest.php`'s
+`->in()` scoping, a fixture missing `ShouldQueue`, the failed-jobs
+cross-connection trap, tag read-set semantics, and Pest 2/3 API differences) plus
+three framework/version findings recorded in the relevant chapters. CI repeats
+this matrix on every push once the repository has a remote.

@@ -79,16 +79,16 @@ it('retries only deadlock-class failures and rethrows business exceptions', func
         expect($calls)->toBe(1);
     }
 
-    // A deadlock-class failure (SQLSTATE 40001) re-runs the closure.
+    // A deadlock-class failure re-runs the closure. The detector accepts a
+    // raw PDOException with SQLSTATE 40001 (verified against
+    // ConcurrencyErrorDetector) — no QueryException wrapper needed, which
+    // keeps this test independent of the QueryException constructor
+    // signature that changed in Laravel 11.
     $deadlockCalls = 0;
     $result = DB::transaction(function () use (&$deadlockCalls) {
         $deadlockCalls++;
         if ($deadlockCalls === 1) {
-            throw new Illuminate\Database\QueryException(
-                'select 1',
-                [],
-                new PDOException('SQLSTATE[40001]: Serialization failure: Deadlock found when trying to get lock', 40001),
-            );
+            throw new PDOException('SQLSTATE[40001]: Deadlock found when trying to get lock', 40001);
         }
 
         return 'ok';

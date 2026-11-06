@@ -348,6 +348,15 @@ idle periods, and (after every deploy) old code. Production posture:
    `queue:restart` on deploy, `--max-jobs`/`--max-time` cadence, connection
    re-establishment posture (framework reconnects on connection errors; your
    long-idle custom connections may not).
+7. **The failed-jobs provider on a different connection.** *Root cause:*
+   `config('queue.failed.database')` names a connection your app doesn't use
+   (e.g. the framework default `sqlite` while you run MySQL — or, as this
+   handbook's harness hit first-hand under Testbench, a renamed default
+   connection): failures are recorded into an empty database nobody monitors,
+   so `failed()` hooks fire but the failed-jobs review workflow sees nothing.
+   *Detection:* `failed()` fires but `queue:failed` is always empty; "no such
+   table" errors from the provider. *Fix:* point `queue.failed.database` at
+   your primary connection and verify with one deliberately failed job.
 
 ## How to test it
 

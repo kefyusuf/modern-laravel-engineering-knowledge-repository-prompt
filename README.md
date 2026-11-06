@@ -6,9 +6,10 @@ avoid it, what a production implementation requires, how it is tested and operat
 and exactly which Laravel/PHP versions change the answer.
 
 **Status: initial build (2026-11).** Chapters marked ⚙️ have their load-bearing
-examples encoded as executable tests ([details](docs/examples.md)); until the first
-green CI run this means *encoded*, not *executed*. Content licensing: [CC BY 4.0](LICENSE.md)
-· code: [MIT](LICENSE-CODE).
+examples encoded as executable tests and **executed locally via Docker across the
+full Laravel 10–13 matrix** (2026-11; see [docs/examples.md](docs/examples.md) for
+the recorded run). The CI workflow repeats the matrix on every push. Content
+licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 
 > **About the repository name:** the `-prompt` suffix is an artifact of how this
 > repository was created; the content is the handbook itself — nothing in it is

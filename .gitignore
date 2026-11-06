@@ -13,3 +13,6 @@ Thumbs.db
 
 # Local tool state
 .mimosa/
+
+# Local execution tooling
+examples/composer.phar

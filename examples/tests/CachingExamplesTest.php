@@ -102,14 +102,16 @@ it('invalidates tag groups and requires a tag-capable store', function () {
     $fixture->putPricing(1, ['usd' => 100]);
     $fixture->putPricing(2, ['usd' => 200]);
 
-    expect(Cache::tags(['product:1'])->get('pricing:1'))->toBe(['usd' => 100]);
+    // Reads must use the SAME tag set the write used — Laravel namespaces
+    // entries under the full tag combination.
+    expect(Cache::tags(['pricing', 'product:1'])->get('pricing:1'))->toBe(['usd' => 100]);
 
     $fixture->flushProduct(1);
-    expect(Cache::tags(['product:1'])->get('pricing:1'))->toBeNull();
-    expect(Cache::tags(['product:2'])->get('pricing:2'))->toBe(['usd' => 200]);
+    expect(Cache::tags(['pricing', 'product:1'])->get('pricing:1'))->toBeNull();
+    expect(Cache::tags(['pricing', 'product:2'])->get('pricing:2'))->toBe(['usd' => 200]);
 
     $fixture->flushAllPricing();
-    expect(Cache::tags(['pricing'])->get('pricing:2'))->toBeNull();
+    expect(Cache::tags(['pricing', 'product:2'])->get('pricing:2'))->toBeNull();
 
     // Driver contract: the harness runs on array (tag-capable). The chapter
     // documents that file/database/dynamodb stores do NOT support tags —

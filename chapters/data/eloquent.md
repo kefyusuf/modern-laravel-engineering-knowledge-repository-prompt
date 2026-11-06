@@ -276,10 +276,21 @@ For aggregates, don't hydrate at all: `DB::table()->groupBy()` / `->count()` /
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
 | `preventLazyLoading()` / `shouldBeStrict()` | ✅ | ✅ | ✅ | ✅ |
+| `LazyLoadingViolationException` namespace | ✅ `Illuminate\Database\Eloquent\` | ✅ `Illuminate\Database\Eloquent\` | ✅ `Illuminate\Database\` (moved — verified in the 12.x source; the old FQCN is gone) | ✅ `Illuminate\Database\` |
 | `chunkById()` / `lazyById()` | ✅ | ✅ | ✅ | ✅ |
 | `toBase()` | ✅ | ✅ | ✅ | ✅ |
 | `casts()` method on models | ❌ use `$casts` | ✅ | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
+
+Two guard subtleties verified in the 12.x source and encoded in the harness:
+
+1. **`Builder::hydrate()` copies the guard onto hydrated models only when the
+   result set has MORE THAN ONE row** — a single `first()` model does NOT carry
+   the instance flag, so a one-row fetch can still lazy-load silently. The
+   realistic N+1 (a listing) is the multi-row case, which the guard does cover.
+2. **The violation class moved namespaces in Laravel 12** — catch the exception
+   via `class_exists` fallback if your code must span the boundary (the harness
+   does exactly that).
 
 The guardrails and batching APIs are stable across the whole range; the only
 authoring difference is `casts()` vs `$casts`. `Context` for request/job metadata
