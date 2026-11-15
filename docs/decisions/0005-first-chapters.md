@@ -107,3 +107,15 @@ concrete needs appear.
 | `data/online-ddl` 📖 | The big-table schema discipline behind deployment's expand/contract; engine-behavior deep dive. |
 
 **26 chapters total; mapping grows to 46↔46.**
+
+## Wave 8 (2026-11) — deeper-dive wave 2
+
+| Chapter | Why next |
+|---|---|
+| `data/row-level-security` ⚙️ | Tenant isolation as a structural claim (global scopes executed; PostgreSQL RLS as the second line) — pairs with authorization. |
+| `interfaces/content-security-policy` ⚙️ | The browser-side containment line as a tested header contract — pairs with security. |
+| `runtime/mercure-streaming` 📖 | The push-delivery options map (broadcasting/Reverb, SSE, Mercure) with shared hygiene. |
+| `runtime/preview-environments` 📖 | Lifecycle, data strategy, isolation, cost — CI/CD extended one step outward. |
+
+**30 chapters total; mapping grows to 48↔48. The roadmap's deeper-dive list
+is fully covered.**

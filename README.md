@@ -24,10 +24,11 @@ licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 - [Decisions](docs/decisions/) — why the repository is built the way it is.
 
 Suggested reading order: **transactions → locking → queues → idempotency →
-outbox → caching → redis → eloquent → database-performance → modular monolith →
-boundaries → eda → ddd → CQRS → api-design → authorization → security →
-observability → octane → testing → deployment → ci-cd → frankenphp**. Later
-chapters assume the earlier ones' vocabulary.
+outbox → caching → redis → eloquent → database-performance → row-level-security →
+modular monolith → boundaries → eda → ddd → CQRS → api-design → authorization →
+security → content-security-policy → observability → octane → testing →
+deployment → online-ddl → ci-cd → mercure-streaming → preview-environments →
+frankenphp**. Later chapters assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -41,6 +42,7 @@ chapters assume the earlier ones' vocabulary.
 | [Redis as infrastructure](chapters/data/redis.md) | ⚙️ | The decisions that matter once Redis is load-bearing: client choice, memory and eviction policy, durability expectations, failure drills. |
 | [Eloquent at scale](chapters/data/eloquent.md) | ⚙️ | The three costs that dominate Eloquent under load — N+1, hydration, unbatched writes — and the guardrails that make them test failures. |
 | [Database performance](chapters/data/database-performance.md) | ⚙️ | Plans over guesses: access paths, round trips, and pagination that doesn't degrade — with the assertions to keep them honest. |
+| [Row-level security](chapters/data/row-level-security.md) | ⚙️ | Tenant isolation enforced at the row: structural scopes, the fail-closed posture, and the database line beneath them. |
 | [Online DDL](chapters/data/online-ddl.md) | 📖 | Schema changes on big tables without stopping the app: the cheapest-first ladder, the metadata-lock trap, and the tooling for the rest. |
 
 ### Messaging & integration
@@ -70,6 +72,7 @@ chapters assume the earlier ones' vocabulary.
 | [API design](chapters/interfaces/api-design.md) | ⚙️ | Resource, error, versioning, and abuse-budget contracts that survive client integrations — rate-limit windows you can execute. |
 | [Authorization](chapters/interfaces/authorization.md) | ⚙️ | One decision point per rule: policies with tenant scope, visible bypasses, and denials tested as seriously as grants. |
 | [Security](chapters/interfaces/security.md) | ⚙️ | Injection, mass assignment, XSS, CSRF, secrets — the disciplines Laravel doesn't force on you, each closed by a test or a gate. |
+| [Content-Security-Policy](chapters/interfaces/content-security-policy.md) | ⚙️ | The browser-side containment line: an explicit policy middleware, the report-only rollout, and the header as a tested contract. |
 
 ### Quality & runtime
 
@@ -81,6 +84,8 @@ chapters assume the earlier ones' vocabulary.
 | [Deployment](chapters/runtime/deployment.md) | 📖 | The release flow that survives overlap: expand/contract migrations, worker reloads, health gates, rehearsed rollbacks. |
 | [CI/CD for Laravel](chapters/runtime/ci-cd.md) | 📖 | The pipeline that mirrors your support reality: static gates, the version matrix, evidence-backed trust marks. |
 | [FrankenPHP standalone](chapters/runtime/frankenphp.md) | 📖 | One binary as web server + PHP runtime: classic vs worker mode, the embed story, and the state discipline it inherits. |
+| [Streaming and real-time](chapters/runtime/mercure-streaming.md) | 📖 | Push delivery's options map — broadcasting/Reverb, SSE, Mercure — and the connection, scoping, and replay hygiene every option shares. |
+| [Preview environments](chapters/runtime/preview-environments.md) | 📖 | Full disposable deployments per PR: lifecycle, data strategy, isolation contract, and the cost controls that keep them honest. |
 
 **Trust marks:** ⚙️ = load-bearing examples executed in CI ([examples/](examples/README.md))
 · 📖 = verified against official docs for stated versions · ⚠️ = contains marked
@@ -92,9 +97,10 @@ The original topic list is now fully covered. Remaining ideas — smaller,
 deeper, or newer than the core chapters — live here as they mature:
 
 - **Deeper dives:** exchange-pattern deep dive (RabbitMQ) · Kafka integration
-  patterns · workflow-engine comparison · Mercure/streaming patterns ·
-  content-security-policy tuning · row-level security · preview environments ·
-  online DDL on managed platforms · supervisor config templates
+  patterns · workflow-engine comparison · trusted-types deep dive ·
+  per-route policy registries · online DDL on managed platforms ·
+  supervisor config templates · presence systems · cost attribution
+  dashboards
 
 Start with a [chapter proposal](.github/ISSUE_TEMPLATE/chapter-proposal.yml);
 the [content standard](docs/content-standard.md) defines done.
