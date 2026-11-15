@@ -171,6 +171,22 @@ headroom, chunk sizing tuned to your write load, throttle hooks
 (a replicalag/heartbeat watcher), and the swap performed in a low-traffic
 window ([deployment](../runtime/deployment.md)).
 
+### Managed platforms: the platform's lever comes first
+
+On managed databases the platform often provides a better lever than
+self-run tooling — check before installing gh-ost:
+
+- **RDS/Aurora MySQL:** Blue/Green Deployments flip a cloned, migrated
+  topology instead of an in-place ALTER; Aurora's instant DDL for ADD
+  COLUMN differs from community MySQL — verify per engine version.
+- **Cloud SQL / Azure:** per-platform online-DDL notes and maintenance
+  windows; some platforms disallow the binlog access gh-ost needs (making
+  the platform's flow the only viable one).
+- **The invariant:** whichever lever you use, the expand/contract
+  sequencing and the pre-flight/rollback discipline
+  ([deployment](../runtime/deployment.md)) are unchanged — the platform
+  changes the tool, never the rules.
+
 ## What usually goes wrong
 
 1. **The metadata-lock pileup.** *Root cause:* DDL queued behind a

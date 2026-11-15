@@ -168,6 +168,24 @@ not a fire-and-forget POST.
 
 ## How to operate it
 
+### Presence systems
+
+"Who is online right now" is the classic realtime adjunct, and the hub
+patterns cover it — with one honesty rule: **presence is a derived,ephemeral
+state**, not durable data.
+
+- **Broadcasting's presence channels** (`PresenceChannel`, Echo) — the
+  framework joins/authenticates the user into the channel and broadcasts
+  join/leave events; your code maintains the roster in memory or Redis
+  ([redis](../data/redis.md)) with a TTL.
+- **Mercure path:** periodic heartbeats per client (or hub-level connection
+  events), a sweeper expiring stale entries, and the roster published as a
+  topic the clients subscribe to.
+- The failure mode to design for: the roster drifting (a crashed client
+  that never sends "leave"). TTL + sweeper is the fix; never store presence
+  as truth — it's a heartbeat view of active connections, and it disappears
+  on restart by design.
+
 - **Connection telemetry:** active connections, subscribe rate, message
   rate, reconnect rate — reconnect spikes mean client-side breakage or hub
   instability.

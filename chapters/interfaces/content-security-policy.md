@@ -106,6 +106,18 @@ final class ContentSecurityPolicy
 
 ## What production requires
 
+### Trusted Types: closing the sink, not just the source
+
+CSP restricts *loading*; **Trusted Types** restricts *the sink itself* — the
+`require-trusted-types-for 'script'` directive makes `innerHTML`-style DOM
+injection points throw unless handed an explicit TrustedTypes object. The
+rollout mirrors CSP's: report-only first, inventory the violations (every
+DOM sink in your code and third-party scripts), wrap the sinks with a
+policy, then enforce. For Laravel server code the work is the same escaping
+discipline ([security](security.md)); Trusted Types extends the guarantee
+into the browser's DOM APIs — the strongest posture for apps with heavy
+client-side rendering.
+
 ### The rollout: report-only, then enforce
 
 1. **`Content-Security-Policy-Report-Only`** with a `report-to`/`report-uri`

@@ -235,6 +235,22 @@ lean; a log pipeline is itself an ops surface.
 
 ## How to operate it
 
+### Cost attribution — the observability bill, owned
+
+Telemetry spend scales with traffic and verbosity; the discipline that keeps
+it honest is **attribution**: every pipeline (log shipping, metrics, tracing,
+the [preview environments](../runtime/preview-environments.md) that ship
+their own telemetry) has a monthly cost label, and the dashboards that
+consume it name their pipeline. The decisions this drives:
+
+- **Sampling budgets per pipeline** — high-volume success paths sample down;
+  errors and slow paths stay at 100% ([how it scales](#how-it-scales)).
+- **Verbosity as a config, not a code change** — log levels and context
+  volume tuned per environment from the cost dashboard.
+- **The review cadence:** cost spikes are treated like latency spikes — a
+  regression to investigate (a debug log left on, a new high-cardinality
+  label), with the same deploy correlation.
+
 - **The dashboard is the contract:** one page per concern with its four signals
   — if a chapter's *operate* section names a metric, it's on a dashboard here.
 - **Every alert links a runbook**; a runbook names the dashboard, the first

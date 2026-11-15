@@ -119,3 +119,22 @@ concrete needs appear.
 
 **30 chapters total; mapping grows to 48↔48. The roadmap's deeper-dive list
 is fully covered.**
+
+## Wave 9 (2026-11) — the deepening pass (roadmap folded)
+
+The roadmap's remaining micro-dive items were folded rather than stubbed:
+one new chapter + eight section additions across existing chapters.
+
+| Item | Where it landed |
+|---|---|
+| Exchange patterns + Kafka patterns | **New chapter:** `messaging/external-brokers` 📖 (community drivers named with their support reality; disciplines-carry-over framing) |
+| Workflow-engine comparison | [sagas](../../chapters/messaging/sagas.md) § When to reach for an engine |
+| Trusted types | [content-security-policy](../../chapters/interfaces/content-security-policy.md) § Trusted Types |
+| Per-route policy registries | [authorization](../../chapters/interfaces/authorization.md) § Per-route policy registries |
+| Managed-platform DDL | [online DDL](../../chapters/data/online-ddl.md) § Managed platforms |
+| Supervisor config templates | [queues](../../chapters/messaging/queues.md) § Supervisor config template |
+| Presence systems | [streaming](../../chapters/runtime/mercure-streaming.md) § Presence systems |
+| Cost attribution dashboards | [observability](../../chapters/quality/observability.md) § Cost attribution |
+
+**31 chapters total.** No harness changes (all folded content is 📖-level);
+mapping stays 48↔48.

@@ -298,6 +298,27 @@ final class Compensations
   workflow-engine conversation — but most systems never outgrow "state table
   with ordered steps and compensation".
 
+### When to reach for an engine
+
+The hand-built runner covers most flows; three signals say "evaluate an
+engine anyway":
+
+1. **Flows need durable, resumable execution across restarts** — the runner
+   re-drives from the state table, but hundreds of long-running flows with
+   weeks-long steps (approval chains, provisioning waits) want an engine
+   whose execution state, timers, and retries are its core competency
+   (Temporal-class durable-execution systems have mature PHP SDKs).
+2. **The flow graph is dynamic** — branches decided by data, steps added by
+   configuration rather than code. A state machine per model
+   (e.g. `spatie/laravel-model-states` for model lifecycle) covers the
+   common middle ground without a workflow engine.
+3. **Multiple teams own steps of shared flows** — an engine gives the
+   step-ownership and versioning model; the runner assumes one owner.
+
+The evaluation bar: the engine must reduce the state-management code you
+own, not relocate it. A workflow engine is a distributed system you adopt —
+the same weight class as [external brokers](external-brokers.md).
+
 ## Version differences
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |

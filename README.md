@@ -54,6 +54,7 @@ frankenphp**. Later chapters assume the earlier ones' vocabulary.
 | [The transactional outbox](chapters/messaging/outbox.md) | ⚙️ | Publishing events reliably when the database is the source of truth — including the inbox half of the contract. |
 | [Sagas and process managers](chapters/messaging/sagas.md) | ⚙️ | Multi-step flows with compensation: a state table, ordered steps, idempotent undos, and the failures each prevents. |
 | [Message broker topologies](chapters/messaging/broker-topologies.md) | 📖 | Queue partitioning by concern and criticality, retry lanes, parking lots — the wiring plan behind queues. |
+| [External brokers](chapters/messaging/external-brokers.md) | 📖 | RabbitMQ exchange patterns and Kafka stream patterns for Laravel — when the queue drivers stop being enough, and which disciplines carry over. |
 
 ### Architecture
 
@@ -96,11 +97,19 @@ engineering judgment.
 The original topic list is now fully covered. Remaining ideas — smaller,
 deeper, or newer than the core chapters — live here as they mature:
 
-- **Deeper dives:** exchange-pattern deep dive (RabbitMQ) · Kafka integration
-  patterns · workflow-engine comparison · trusted-types deep dive ·
-  per-route policy registries · online DDL on managed platforms ·
-  supervisor config templates · presence systems · cost attribution
-  dashboards
+- **Deeper dives:** the roadmap's original deeper-dive list has been folded
+  into chapters and their sections (exchange patterns and Kafka patterns →
+  [external brokers](chapters/messaging/external-brokers.md); workflow
+  engines → [sagas](chapters/messaging/sagas.md); trusted types →
+  [content-security-policy](chapters/interfaces/content-security-policy.md);
+  per-route policy registries →
+  [authorization](chapters/interfaces/authorization.md); managed-platform
+  DDL → [online DDL](chapters/data/online-ddl.md); supervisor templates →
+  [queues](chapters/messaging/queues.md); presence →
+  [streaming](chapters/runtime/mercure-streaming.md); cost attribution →
+  [observability](chapters/quality/observability.md)). New chapters
+  graduate from [proposal issues](.github/ISSUE_TEMPLATE/chapter-proposal.yml)
+  as needs appear.
 
 Start with a [chapter proposal](.github/ISSUE_TEMPLATE/chapter-proposal.yml);
 the [content standard](docs/content-standard.md) defines done.

@@ -227,6 +227,30 @@ note.
 
 ## How to operate it
 
+### Per-route policy registries
+
+As routes multiply, "which policy guards this route?" needs an answer that
+isn't per-controller archaeology. The registry pattern keeps the answer
+mechanical:
+
+```php
+<?php
+
+// bootstrap/app.php or a dedicated provider — the route→ability map:
+Route::middleware('can:view,App\Models\Invoice')->group(function () {
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+    // ...
+});
+```
+
+Inline `can:` middleware per route, grouped per resource — the policy name
+appears ON the route, so a grep over the route files IS the authorization
+inventory ([modular monolith](../architecture/modular-monolith.md) gates use
+the same grep principle). The alternative — resolving policies implicitly
+by model type-hint — works, but the explicit registry makes the annual
+"audit every route's rule" review a listing exercise instead of an
+investigation.
+
 - **403 telemetry:** rate by endpoint and by consumer — spikes mean an
   attacker, a broken client, or a rule change that surprised someone;
   each has a different owner.

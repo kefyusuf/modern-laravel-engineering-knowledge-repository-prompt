@@ -374,6 +374,39 @@ idle periods, and (after every deploy) old code. Production posture:
 
 ## How to operate it
 
+### Supervisor config template
+
+The supervision posture, as an actual supervisor program — one per queue,
+with the numbers this chapter prescribes (`stopwaitsecs` above the longest
+job timeout on that queue; the template assumes the 120s budget from
+[production requires](#what-production-requires)):
+
+```ini
+[program:queue-webhooks]
+command=php /var/www/current/artisan queue:work --queue=webhooks --sleep=1 --tries=3
+numprocs=4
+autostart=true
+autorestart=true
+stopwaitsecs=300
+user=www-data
+stdout_logfile=/var/log/supervisor/queue-webhooks.log
+
+[program:queue-exports]
+command=php /var/www/current/artisan queue:work --queue=exports --sleep=3 --tries=1 --max-jobs=100
+numprocs=1
+autostart=true
+autorestart=true
+stopwaitsecs=900
+user=www-data
+stdout_logfile=/var/log/supervisor/queue-exports.log
+```
+
+`numprocs` per queue is the worker pool; deploys run `php artisan
+queue:restart` and supervisor picks the new code up worker by worker. The
+exports program demonstrates per-queue tuning: `--tries=1` for a batch job
+whose retry policy is the job's own, generous `--max-jobs` recycling for
+memory hygiene.
+
 - **Supervision:** one worker process per queue/concern (isolation: the noisy
   webhook queue doesn't starve payments), autorestart, `stopwaitsecs` > longest
   job timeout. Horizon if you're on redis — it adds the dashboard, metrics, and
