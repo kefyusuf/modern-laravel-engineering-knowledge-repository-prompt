@@ -19,6 +19,8 @@ Content licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 ## How to read this
 
 - [Charter](docs/charter.md) — mission, non-goals, and the three trust levels.
+- [Read-through guide](docs/readthrough-guide.md) — the maintainer's sign-off
+  checklist and the honest state of what is verified vs docs-backed.
 - [Glossary](docs/glossary.md) — the handbook's working vocabulary, one line
   per term with its owning chapter.
 - [Content standard](docs/content-standard.md) — the contract every chapter satisfies.
