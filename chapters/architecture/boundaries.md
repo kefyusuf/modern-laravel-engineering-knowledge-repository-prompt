@@ -304,5 +304,5 @@ The dependency rule is framework-version-agnostic; the skeleton change (10 →
   to infrastructure reliably.
 - [Testing the failure paths](../quality/testing.md) — the testing consequences
   of the layering.
-- Roadmap: domain-driven design (aggregates, ubiquitous language), event-driven
-  architecture.
+- Covered since this line was written: [DDD](ddd.md) and [event-driven
+  architecture](eda.md).

@@ -303,4 +303,4 @@ is 11.0+ — see [Observability](../quality/observability.md).
   fitting.
 - [Queues](../messaging/queues.md) — why ids, not models, travel in payloads.
 - [Caching](caching.md) — caching a hydrated model graph is caching a liability.
-- Roadmap: database performance (indexing strategy, EXPLAIN practice).
+- Covered since this line was written: [database performance](database-performance.md).

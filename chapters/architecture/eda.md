@@ -89,27 +89,35 @@ the [outbox](../messaging/outbox.md) payload:
   producer's contract, never import its internals.
 - **Payload: ids and values, versioned** (`schema_version`), never serialized
   models ([outbox](../messaging/outbox.md) contract section applies verbatim).
-- **Delivery guarantees are explicit:** in-process Laravel listeners are
-  fire-and-forget within the request; queued listeners are at-least-once
-  ([Queues](../messaging/queues.md)); cross-process reliability requires the
-  outbox — **there is no event-driven architecture without deciding how events
-  survive a crash**.
+- **Delivery guarantees are explicit:** in-process Laravel listeners run
+  inline in the request — coupled to its latency and failures; queued
+  listeners are at-least-once ([Queues](../messaging/queues.md)); cross-process
+  reliability requires the outbox — **there is no event-driven architecture
+  without deciding how events survive a crash**.
 
-## The reliability ladder (the outbox is the floor)
+## The reliability ladder
 
-Every event publication sits somewhere on this ladder
-([Transactions](../data/transactions.md) → [outbox](../messaging/outbox.md)):
+Every event publication sits somewhere on this ladder — the same spectrum
+[the outbox chapter](../messaging/outbox.md) defines; it is repeated here
+because event-driven decisions start from it:
 
-1. **In-process listener, same transaction** — dies with the transaction
-   (fine for same-db projections you control: [CQRS](cqrs.md) level 2).
-2. **Queued listener + `afterCommit`** — survives the request, not the crash
-   window.
-3. **Outbox + relay** — survives everything; at-least-once; consumers dedupe.
-4. **Broker-backed streaming** (beyond Laravel) — the scale path; same
-   correctness model, different ops.
+1. **Fire-and-forget** (`dispatch()` anywhere) — fastest; both failure modes
+   (phantom events, lost events) live.
+2. **`afterCommit` dispatch** — no phantom events; the crash window can lose
+   events.
+3. **Outbox + relay** — no phantom, no lost events; at-least-once (duplicates
+   possible); latency = relay cadence.
+4. **Outbox + relay + consumer inbox** — effectively exactly-once; the
+   standard for correctness-critical integration.
+5. **CDC-based outbox** (Debezium-class tooling) — the same correctness model
+   at broker scale; different ops.
 
-Choosing below the requirement is how events get lost; choosing above it
-everywhere is how systems drown in infrastructure. Decide per event type.
+For in-process listeners the rungs collapse: a synchronous listener is rung 1
+(dies with the transaction — fine for same-database projections you control:
+[CQRS](cqrs.md) level 2), a queued listener is rung 2
+(`$afterCommit` — survives the request, not the crash window). Choosing below
+the requirement is how events get lost; choosing above it everywhere is how
+systems drown in infrastructure. Decide per event type.
 
 ## The simplest correct implementation
 
@@ -142,7 +150,6 @@ namespace App\Modules\Fulfillment\Listeners;
 
 use App\Modules\Orders\Events\OrderShipped;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 final class CreateFulfillmentRequest implements ShouldQueue
 {
@@ -162,20 +169,39 @@ final class CreateFulfillmentRequest implements ShouldQueue
 }
 ```
 
-Producer side, the fact is published **reliably or knowingly-not**:
+Producer side, the fact is published **reliably or knowingly-not** — from
+inside the shipping use case (the outbox insert commits with the state
+change; the relay delivers the event — [outbox](../messaging/outbox.md)):
 
 ```php
 <?php
 
-// Inside the shipping transaction — outbox row commits with the state
-// change; the relay delivers the event (outbox chapter). The in-process
-// Event::dispatch below is only for SAME-transaction listeners.
-$this->outbox->publish('order.shipped', $orderId, [
-    'schema_version' => 1,
-    'order_id' => $orderId,
-    'merchant_id' => $merchantId,
-    'shipped_at' => $now->toIso8601String(),
-]);
+namespace App\Modules\Orders\Actions;
+
+use App\Modules\Orders\Events\OrderShipped;
+use App\Outbox\Outbox;
+use Illuminate\Support\Facades\DB;
+
+final class ShipOrder
+{
+    public function __construct(private readonly Outbox $outbox) {}
+
+    public function execute(int $orderId, int $merchantId): void
+    {
+        DB::transaction(function () use ($orderId, $merchantId) {
+            // ... mark the order shipped (the state change) ...
+
+            // The outbox row commits WITH the state change; the relay
+            // delivers the fact to consumers (at-least-once).
+            $this->outbox->publish('order.shipped', $orderId, [
+                'schema_version' => 1,
+                'order_id' => $orderId,
+                'merchant_id' => $merchantId,
+                'shipped_at' => now()->toIso8601String(),
+            ]);
+        });
+    }
+}
 ```
 
 ## What production requires

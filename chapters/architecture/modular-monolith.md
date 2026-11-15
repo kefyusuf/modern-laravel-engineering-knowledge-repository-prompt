@@ -332,5 +332,5 @@ lives in different files. Laravel 13's delta here is the PHP 8.3 minimum.
 - [Idempotency](../messaging/idempotency.md) — event consumers are dedupe
   consumers.
 - [Caching](../data/caching.md) — per-module key ownership.
-- Roadmap: domain-driven design (bounded-context analysis), event-driven
-  architecture (the event-contract layer beyond one app).
+- Covered since this line was written: [DDD](ddd.md) and [event-driven
+  architecture](eda.md). Deeper dives remain in the README roadmap.

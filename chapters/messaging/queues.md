@@ -435,5 +435,6 @@ migration doc, check the framework release notes for your target version.
 - [Locking](../data/locking.md) — `WithoutOverlapping` and unique jobs are cache
   locks; shared-store requirements.
 - [Caching](../data/caching.md) — the cache store your uniqueness rides on.
-- Roadmap: observability (queue dashboards, tracing spans), deployment (worker
-  supervision specifics), Octane (not a queue worker — relation explained there).
+- Covered since this line was written: [observability](../quality/observability.md),
+  [deployment](../runtime/deployment.md), and [Octane](../runtime/octane.md).
+  Roadmap: tracing spans (cross-service correlation).

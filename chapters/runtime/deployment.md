@@ -210,4 +210,5 @@ convenience fork between 10 and 11+.
 - [Observability](../quality/observability.md) — deploy markers and the
   post-deploy watch.
 - [Redis](../data/redis.md) — the shared stores the health gate probes.
-- Roadmap: CI/CD for Laravel (pipeline definition), FrankenPHP standalone.
+- Covered since this line was written: [CI/CD](ci-cd.md) and
+  [FrankenPHP](frankenphp.md).

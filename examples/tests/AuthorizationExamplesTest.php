@@ -11,7 +11,7 @@ uses()->group('authorization');
  * Executed claims for chapters/interfaces/authorization.md.
  */
 it('grants owners and admins, denies everyone else — at one decision point', function () {
-    /** @example-id authz/policy-ownership */
+    /** @example-id authorization/policy-ownership */
     Gate::policy(Order::class, OrderPolicy::class);
 
     $order = new Order([
@@ -34,7 +34,7 @@ it('grants owners and admins, denies everyone else — at one decision point', f
 });
 
 it('denies cross-tenant access even when the user id matches', function () {
-    /** @example-id authz/tenant-scope */
+    /** @example-id authorization/tenant-scope */
     Gate::policy(Order::class, OrderPolicy::class);
 
     // Same customer id (10), DIFFERENT tenant: the ownership rule alone

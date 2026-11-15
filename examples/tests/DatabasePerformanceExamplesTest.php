@@ -9,7 +9,7 @@ uses()->group('database-performance');
  * Executed claims for chapters/data/database-performance.md.
  */
 it('verifies the access path uses the index instead of a scan', function () {
-    /** @example-id perf/index-usage */
+    /** @example-id database-performance/index-usage */
     // Seed enough rows that a scan would be obviously wrong, then read the
     // plan the engine actually takes for the indexed filter+order shape.
     foreach (range(1, 20) as $i) {
@@ -34,7 +34,7 @@ it('verifies the access path uses the index instead of a scan', function () {
 });
 
 it('inserts a batch in one statement instead of one per row', function () {
-    /** @example-id perf/bulk-insert */
+    /** @example-id database-performance/bulk-insert */
     $rows = [];
     foreach (range(1, 5) as $i) {
         $rows[] = ['key' => "k{$i}", 'created_at' => now()];
@@ -53,7 +53,7 @@ it('inserts a batch in one statement instead of one per row', function () {
 });
 
 it('keeps keyset pagination stable where offset pagination shifts', function () {
-    /** @example-id perf/keyset-pagination */
+    /** @example-id database-performance/keyset-pagination */
     $feed = new OrderFeed;
 
     // Explicit positive ids (SQLite AUTOINCREMENT turns an inserted 0 into

@@ -9,14 +9,17 @@ uses()->group('api-design');
  * Executed claims for chapters/interfaces/api-design.md.
  */
 it('enforces the abuse budget with an exact, visible window', function () {
-    /** @example-id api/rate-limit-window */
-    RateLimiter::for('api', function () {
-        return \Illuminate\Cache\RateLimiting\Limit::perMinute(3)->by('consumer:7');
-    });
+    /** @example-id api-design/rate-limit-window */
 
-    // The named limiter is executed per hit, exactly like the throttle
-    // middleware runs it for a request. attempt() returns the CALLBACK's
-    // result when allowed, and false when the budget is exhausted.
+    // Freeze the clock BEFORE the first hit so the window arithmetic is
+    // fully deterministic (no wall-clock stalls between assertions).
+    Carbon::setTestNow(now()->startOfMinute());
+
+    // RateLimiter::attempt() carries the window semantics directly (its own
+    // timer keys) — the throttle middleware's named-limiter registry is a
+    // separate HTTP-layer concern this unit test deliberately does not
+    // exercise. attempt() returns the callback's result when allowed, and
+    // false when the budget is exhausted.
     $attempt = fn () => RateLimiter::attempt(
         key: 'api:consumer:7',
         maxAttempts: 3,
@@ -43,10 +46,6 @@ it('enforces the abuse budget with an exact, visible window', function () {
     Carbon::setTestNow(now()->addSeconds(55));
     expect(RateLimiter::tooManyAttempts('api:consumer:7', 3))->toBeFalse();
     expect($attempt())->toBe('handled');
-});
-
-beforeEach(function () {
-    RateLimiter::clear('api:consumer:7');
 });
 
 afterEach(function () {

@@ -423,5 +423,5 @@ framework API, and is not covered by this table.
   commit; retry semantics and `$afterCommit` interplay.
 - [Idempotency](../messaging/idempotency.md) — retries (deadlock, queue, request-
   level) are only safe when effects are idempotent.
-- Roadmap: observability (long-transaction dashboards), testing (race simulation
-  patterns).
+- Covered since this line was written: [observability](../quality/observability.md)
+  and [testing](../quality/testing.md).

@@ -72,7 +72,7 @@ rules, language, and consistency explicit homes.
 |---|---|---|
 | **Bounded context** | A boundary inside which terms mean one thing | A module ([modular monolith](modular-monolith.md)) |
 | **Aggregate** | A consistency boundary: one root, invariants enforced on every mutation, one transaction per aggregate | An Eloquent model (+ its relations) or a plain class persisted by an action |
-| **Value object** | An immutable thing defined by its values (Money, DateRange) — equality by value | A `readonly` class (PHP 8.2+, available across the supported matrix) |
+| **Value object** | An immutable thing defined by its values (Money, DateRange) — equality by value | A `readonly` class (requires PHP ≥ 8.2 — a language capability, independent of the Laravel version) |
 | **Domain event** | A fact the aggregate announces | Event class in the module's `Events/` ([outbox](../messaging/outbox.md) payload discipline) |
 | **Ubiquitous language** | Code names what the business names | Class/method naming discipline — enforced in review, not tooling |
 | **Anti-corruption layer** | A translation boundary against foreign models | A contract + adapter ([boundaries](boundaries.md) infrastructure layer) |
@@ -105,13 +105,13 @@ final class PurchaseOrder
     public function addLine(int $skuId, int $quantity, int $unitCents): void
     {
         if ($this->cancelled) {
-            throw new \App\Domain\Orders\Exception('cancelled orders are immutable');
+            throw new \DomainException('cancelled orders are immutable');
         }
         if ($quantity < 1) {
-            throw new \App\Domain\Orders\Exception('quantity must be positive');
+            throw new \DomainException('quantity must be positive');
         }
         if (count($this->lines) >= 10) {
-            throw new \App\Domain\Orders\Exception('an order carries at most 10 lines');
+            throw new \DomainException('an order carries at most 10 lines');
         }
 
         $this->lines[] = ['sku_id' => $skuId, 'quantity' => $quantity, 'unit_cents' => $unitCents];
@@ -120,7 +120,7 @@ final class PurchaseOrder
     public function cancel(): void
     {
         if ($this->lines === []) {
-            throw new \App\Domain\Orders\Exception('empty orders are not kept');
+            throw new \DomainException('empty orders are not kept');
         }
         $this->cancelled = true;
     }
@@ -138,16 +138,47 @@ final class PurchaseOrder
 ```php
 <?php
 
-// The application layer persists the AGGREGATE in one transaction and
-// announces the fact (outbox chapter) — the invariant held before anything
-// touched the database:
-$po = new PurchaseOrder($orderId);
-$po->addLine($skuId, $quantity, $unitCents);
-DB::transaction(function () use ($po) {
-    // ... persist the aggregate's rows ...
-    $this->outbox->publish('order.placed', $po->id, [...]);
-});
+namespace App\Application\Orders;
+
+use App\Domain\Orders\PurchaseOrder;
+use App\Outbox\Outbox;
+use Illuminate\Support\Facades\DB;
+
+final class PlacePurchaseOrder
+{
+    public function __construct(private readonly Outbox $outbox) {}
+
+    /**
+     * The application layer persists the AGGREGATE in one transaction and
+     * announces the fact (outbox chapter) — the invariant held before
+     * anything touched the database.
+     */
+    public function execute(int $orderId, int $skuId, int $quantity, int $unitCents): void
+    {
+        $po = new PurchaseOrder($orderId);
+        $po->addLine($skuId, $quantity, $unitCents);
+
+        DB::transaction(function () use ($po, $orderId) {
+            // Persist the aggregate's rows on the connection the transaction
+            // owns (orders + order_lines — the aggregate's tables).
+            DB::table('orders')->insert(['id' => $orderId, 'total_cents' => $po->totalCents()]);
+            DB::table('order_lines')->insert([
+                ['order_id' => $orderId, 'sku_id' => $skuId, 'quantity' => $quantity, 'unit_cents' => $unitCents],
+            ]);
+
+            $this->outbox->publish('order.placed', $orderId, [
+                'schema_version' => 1,
+                'order_id' => $orderId,
+                'total_cents' => $po->totalCents(),
+            ]);
+        });
+    }
+}
 ```
+
+(A real implementation reads the aggregate back through its repository of
+tables; the shape above is the minimal honest version — the rules live in
+`PurchaseOrder`, the action orchestrates persistence and the fact.)
 
 The aggregate's rules are testable in **pure PHP, in milliseconds** — no
 framework, no database ([boundaries](boundaries.md)' framework-free test as
@@ -251,13 +282,14 @@ the boundary test).
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
-| `readonly` classes (value objects, PHP 8.2) | ❌ (PHP 8.1) | ✅ | ✅ | ✅ |
+| `readonly` classes (value objects) | ⚠️ needs PHP ≥ 8.2 (a PHP capability — independent of the Laravel version; this repo's L10 CI cell runs PHP 8.2) | ⚠️ same | ⚠️ same | ⚠️ same |
 | Pattern applicability (Eloquent as aggregate root, events, jobs) | ✅ | ✅ | ✅ | ✅ |
-| Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
+| Minimum PHP (per matrix cell) | 8.1 | 8.2 | 8.2 | 8.3 |
 
-DDD is framework-version-agnostic — the only matrix-relevant delta is the
-`readonly` class syntax (PHP 8.2+, so Laravel 11+ codebases; on Laravel 10
-write private properties with getters or use plain immutability discipline).
+DDD is framework-version-agnostic. The `readonly`-class row is a **PHP**
+capability, not a Laravel one: a Laravel 10 app on PHP 8.2 parses it fine; a
+Laravel 10 app on PHP 8.1 cannot — write plain immutable classes there
+(private properties, no setters).
 
 ## Related
 

@@ -69,9 +69,11 @@ excellent. They follow from three placement errors:
 
 ## The simplest correct implementation
 
-The policy as the single decision point:
+The decision point — starting with **ownership only, deliberately
+incomplete**: the tenant scope that makes it production-safe is the next
+example (and the fixture the harness executes carries both rules).
 
-<!-- example: authz/policy-ownership -->
+<!-- example: authorization/policy-ownership -->
 ```php
 <?php
 
@@ -93,6 +95,9 @@ final class OrderPolicy
 
     public function update(User $user, Order $order): bool
     {
+        // DELIBERATELY INCOMPLETE: ownership alone — in a multi-tenant
+        // system this is an IDOR with extra steps. The production-safe
+        // version (next example) adds the tenant scope.
         return $user->id === $order->customer_id;
     }
 }
@@ -123,7 +128,7 @@ answer — including the ones added next year.
 
 ### Tenant scope is part of the rule, not an afterthought
 
-<!-- example: authz/tenant-scope -->
+<!-- example: authorization/tenant-scope -->
 ```php
 <?php
 

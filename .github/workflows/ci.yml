@@ -62,6 +62,14 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: mbstring, pdo_sqlite, redis
           coverage: none
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          # composer.lock is not committed (the matrix re-resolves per cell);
+          # composer.json hash is the honest cache key.
+          key: composer-${{ matrix.php }}-${{ hashFiles('examples/composer.json') }}
+          restore-keys: composer-${{ matrix.php }}-
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev

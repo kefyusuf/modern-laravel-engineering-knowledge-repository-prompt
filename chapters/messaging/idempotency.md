@@ -487,4 +487,4 @@ differences, not Laravel ones — know your driver.
 - [Locking](../data/locking.md) — exclusion vs dedupe: sibling answers to different
   concurrency problems.
 - [Caching](../data/caching.md) — where cache-based dedupe fits (fast path only).
-- Roadmap: API design (idempotency-key header conventions, 409/422 semantics).
+- Covered since this line was written: [API design](../interfaces/api-design.md).

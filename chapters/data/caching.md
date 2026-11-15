@@ -396,5 +396,5 @@ Laravel 10).
   the guarantee lives in the database.
 - [The modular monolith](../architecture/modular-monolith.md) — per-module key
   ownership and invalidation contracts.
-- Roadmap: Redis as infrastructure (memory, replication, clustering ops), Octane
-  (worker-local state).
+- Covered since this line was written: [Redis as infrastructure](redis.md) and
+  [Octane](../runtime/octane.md).

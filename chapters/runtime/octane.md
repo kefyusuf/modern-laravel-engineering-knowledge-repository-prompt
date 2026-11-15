@@ -218,5 +218,5 @@ pinned runtime, independent of your system PHP.
   per-worker signals.
 - [The modular monolith](../architecture/modular-monolith.md) — clean module
   boundaries make the state audit small.
-- Roadmap: FrankenPHP (standalone, beyond Octane), deployment (supervisor
-  templates).
+- Covered since this line was written: [FrankenPHP](frankenphp.md) and
+  [deployment](deployment.md). Roadmap: supervisor config templates.

@@ -94,7 +94,7 @@ queries, read the plans of the slow ones, fix, re-measure.
 An index decision is only real when a specific query needs it. Verify the path
 the engine actually takes:
 
-<!-- example: perf/index-usage -->
+<!-- example: database-performance/index-usage -->
 ```php
 <?php
 
@@ -148,7 +148,7 @@ Index rules that survive production:
 
 ### Round trips: one statement beats N
 
-<!-- example: perf/bulk-insert -->
+<!-- example: database-performance/bulk-insert -->
 ```php
 <?php
 
@@ -172,7 +172,7 @@ final class ImportRows implements ShouldQueue
         // ONE round trip for the whole batch (chunked to stay under
         // parameter limits — e.g. 500 rows per statement).
         foreach (array_chunk($this->rows, 500) as $chunk) {
-            DB::table('race_log')->insert($chunk);
+            DB::table('import_rows')->insert($chunk);
         }
 
         // NOT: foreach ($this->rows as $row) { DB::table(...)->insert($row); }
@@ -180,6 +180,9 @@ final class ImportRows implements ShouldQueue
     }
 }
 ```
+
+The executed claim counts the statements: five rows, one query
+([examples/tests/DatabasePerformanceExamplesTest.php](../../examples/tests/DatabasePerformanceExamplesTest.php)).
 
 The same discipline covers: aggregate in SQL (`SUM`/`COUNT` in one statement —
 never materialize rows to sum them in PHP,
@@ -192,7 +195,7 @@ access.
 Offset pagination makes the engine *walk and discard* every skipped row —
 cost grows linearly with page depth. Keyset (cursor) pagination seeks:
 
-<!-- example: perf/keyset-pagination -->
+<!-- example: database-performance/keyset-pagination -->
 ```php
 <?php
 
@@ -252,11 +255,12 @@ honest enough.
    one row per statement. *Detection:* job duration scales linearly with row
    count; network-bound workers. *Fix:* `insert()` batches, `upsert()`, chunked
    bulk updates.
-5. **Index-free foreign keys.** *Root cause:* a migration added a
-   `*_id` column without an index (MySQL doesn't auto-index FK columns you
-   create manually). *Detection:* every join/filter on it scans; slow-query log
-   dominated by that table. *Fix:* index the FK — the cheapest win in this
-   chapter.
+5. **Index-free foreign keys.** *Root cause:* a `*_id` column added **without
+   a foreign-key constraint and without an index** (PostgreSQL never
+   auto-indexes FK columns; MySQL/InnoDB auto-creates the index only when the
+   constraint itself is declared). The result: every join/filter on it scans.
+   *Detection:* slow-query log dominated by that table. *Fix:* index the FK —
+   the cheapest win in this chapter.
 6. **SELECT * on wide tables for narrow needs.** *Root cause:* hydration of
    every column for a two-field listing; large rows blow the buffer pool.
    *Detection:* network/IO-dominated queries returning 30 columns for a

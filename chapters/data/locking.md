@@ -434,5 +434,5 @@ lock-relevant delta is the PHP 8.3 minimum.
   protection is locking applied to cache rebuilds.
 - [Idempotency](../messaging/idempotency.md) — the alternative to exclusion: make
   duplicates harmless instead of impossible.
-- Roadmap: Redis as infrastructure (lock store ops), observability (contention
-  dashboards).
+- Covered since this line was written: [Redis as infrastructure](redis.md) and
+  [observability](../quality/observability.md).

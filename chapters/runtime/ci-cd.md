@@ -91,8 +91,10 @@ load-bearing — service containers make those claims executable rather than
 
 ## The simplest correct implementation
 
-Two jobs — one fast, one matrix — is the honest minimum (this repository
-ships exactly this, [decision 0006](../../docs/decisions/0006-ci-strategy.md)):
+Three jobs — the static gates, the matrix, and a scheduled external-link
+sweep — are the honest minimum; this repository ships exactly that
+([decision 0006](../../docs/decisions/0006-ci-strategy.md)). The abridged
+sketch below shows the two central jobs:
 
 ```yaml
 # .github/workflows/ci.yml (the shape this repository actually runs)
@@ -138,9 +140,13 @@ jobs:
         run: vendor/bin/pest --ci
 ```
 
-(The abridged docs job above omits this repository's additional gates —
-`php-smoke`, example-mapping, VERIFY-marker checks — which run in the real
-[ci.yml](../../.github/workflows/ci.yml).)
+(The sketch above is abridged: it omits the third job (the weekly
+external-link sweep), job `name:` fields, the `on:` triggers, `concurrency`,
+`working-directory: examples`, the Redis health-check options, and the
+composer-cache step — all of which are in the real
+[ci.yml](../../.github/workflows/ci.yml). One honest delta the other way:
+this chapter recommends an audit/analysis stage (composer audit, PHPStan)
+that the repository's own workflow does not yet ship.)
 
 What each piece is for:
 
@@ -264,6 +270,6 @@ yearly matrix bump ([version policy](../../docs/version-policy.md)).
   truth and its quarterly lifecycle.
 - [The modular monolith](../architecture/modular-monolith.md) — deptrac in CI
   as the boundary enforcer.
-- [Observability](../quality/observability.md) — deploy markers and the
-  post-deploy watch that closes the loop.
+- [Deployment](deployment.md) — the release flow CI hands off to: deploy
+  markers, health gates, and the post-deploy watch that closes the loop.
 - Roadmap: preview environments, merge queues.

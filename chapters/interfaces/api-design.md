@@ -142,7 +142,7 @@ first 500 becomes an HTML document a JSON client cannot parse.
 
 ### Abuse budgets: rate limiting with a window the client can see
 
-<!-- example: api/rate-limit-window -->
+<!-- example: api-design/rate-limit-window -->
 ```php
 <?php
 
@@ -236,9 +236,10 @@ Rules that keep the budget honest:
 - **Error-contract tests:** force validation failure, auth failure, and 500 —
   assert the same error envelope on all three.
 - **Rate-limit window (⚙️ `examples/tests/ApiDesignExamplesTest.php`):** the
-  limiter's window semantics are executable — hits exhaust the budget, 429
-  arrives at the boundary, the window resets when the decay passes
-  (frozen time — [testing](../quality/testing.md)).
+  limiter's window semantics are executable — hits exhaust the budget, denial
+  persists until the decay, and the window resets without a restart (frozen
+  time — [testing](../quality/testing.md)). The 429 response itself is the
+  HTTP adapter's job: exercise it in your app's feature tests.
 - **Pagination stability:** covered by the keyset claims in
   [database performance](../data/database-performance.md) — reuse, don't
   duplicate.
@@ -250,8 +251,9 @@ Rules that keep the budget honest:
   rate-limit rejections, p95 latency per route.
 - **Client behavior telemetry:** top abusers by request volume and by
   429 rate — the conversation with a misbehaving client starts from data.
-- **Deprecation tracking:** every versioned route has a sunset date; the
-  pipeline ([ci-cd](../runtime/ci-cd.md)) reports usage per version.
+- **Deprecation tracking:** every versioned route has a sunset date — the
+  deprecation is announced (headers + changelog) and usage per version is
+  watched from your telemetry until it reaches zero.
 - **3am runbook:** 5xx spike → which endpoint, which exception class
   ([observability](../quality/observability.md) request ids); partner outage
   report → their 429 rate (their backoff is broken?) or your error rate — the

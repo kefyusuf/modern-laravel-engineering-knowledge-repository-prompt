@@ -185,12 +185,17 @@ final class UpdateMerchantShipmentProjection implements ShouldQueue
 {
     public function handle(OrderShipped $event): void
     {
+        // The typed fact the [EDA chapter](eda.md) defines — the outbox
+        // relay's delivery job hydrates it from the relayed payload before
+        // this listener runs.
+        $merchantId = $event->merchantId;
+
         // Recompute-and-write (idempotent under redelivery), never
         // increment (would double-count on the guaranteed duplicate).
         DB::table('merchant_shipment_totals')->updateOrInsert(
-            ['merchant_id' => $event->payload['merchant_id']],
+            ['merchant_id' => $merchantId],
             ['shipments_total' => DB::table('orders')
-                ->where('merchant_id', $event->payload['merchant_id'])
+                ->where('merchant_id', $merchantId)
                 ->where('status', 'shipped')
                 ->count(),
              'updated_at' => now()],

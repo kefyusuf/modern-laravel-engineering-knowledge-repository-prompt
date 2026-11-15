@@ -2,7 +2,7 @@
 title: FrankenPHP standalone
 topic: frankenphp
 status: draft
-reviewed-against: "FrankenPHP docs, 2026-11"
+reviewed-against: "FrankenPHP 1.x docs, 2026-11"
 ---
 
 # FrankenPHP standalone
