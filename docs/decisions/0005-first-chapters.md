@@ -138,3 +138,14 @@ one new chapter + eight section additions across existing chapters.
 
 **31 chapters total.** No harness changes (all folded content is 📖-level);
 mapping stays 48↔48.
+
+## Wave 10 (2026-11) — the last two deferred chapters + glossary
+
+| Item | Why now |
+|---|---|
+| `messaging/cdc-streaming` 📖 | The outbox ladder's rung 5 — deferred twice ("different ops discipline"); now the completion of the reliability arc, verified against Debezium docs (Outbox Event Router SMT, snapshot modes). |
+| `quality/tracing` 📖 | Observability's explicit "next level" — OpenTelemetry in Laravel (official instrumentation + community packages verified), span discipline, sampling. |
+| `docs/glossary.md` | A 31-chapter reference needs a term index; every term links its owning chapter (CI link-checked). |
+
+**33 chapters + glossary.** The handbook now covers every planned topic and
+every planned deep dive.

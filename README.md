@@ -19,6 +19,8 @@ Content licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 ## How to read this
 
 - [Charter](docs/charter.md) — mission, non-goals, and the three trust levels.
+- [Glossary](docs/glossary.md) — the handbook's working vocabulary, one line
+  per term with its owning chapter.
 - [Content standard](docs/content-standard.md) — the contract every chapter satisfies.
 - [Version policy](docs/version-policy.md) — how Laravel 10→13 differences are tracked.
 - [Runnable examples](docs/examples.md) — what ⚙️ means and how the harness works.
@@ -56,6 +58,7 @@ frankenphp**. Later chapters assume the earlier ones' vocabulary.
 | [Sagas and process managers](chapters/messaging/sagas.md) | ⚙️ | Multi-step flows with compensation: a state table, ordered steps, idempotent undos, and the failures each prevents. |
 | [Message broker topologies](chapters/messaging/broker-topologies.md) | 📖 | Queue partitioning by concern and criticality, retry lanes, parking lots — the wiring plan behind queues. |
 | [External brokers](chapters/messaging/external-brokers.md) | 📖 | RabbitMQ exchange patterns and Kafka stream patterns for Laravel — when the queue drivers stop being enough, and which disciplines carry over. |
+| [CDC and Debezium](chapters/messaging/cdc-streaming.md) | 📖 | The outbox ladder's final rung: log-based capture that removes the relay entirely — same contract, new delivery. |
 
 ### Architecture
 
@@ -82,6 +85,7 @@ frankenphp**. Later chapters assume the earlier ones' vocabulary.
 |---|---|---|
 | [Observability](chapters/quality/observability.md) | ⚙️ | Request context that survives the queue hop, structured logs worth searching, and the four signals that answer 3am questions. |
 | [Testing the failure paths](chapters/quality/testing.md) | ⚙️ | Deterministic races, failure injection at the seam, frozen time — the toolkit every chapter's *How to test it* assumes. |
+| [Distributed tracing](chapters/quality/tracing.md) | 📖 | The connected tree across request → queue → downstream: OpenTelemetry in Laravel, span discipline, and sampling that keeps errors visible. |
 | [Octane](chapters/runtime/octane.md) | 📖 | Boot once, serve many — the state discipline that separates Octane's latency win from cross-request data leaks. |
 | [Deployment](chapters/runtime/deployment.md) | 📖 | The release flow that survives overlap: expand/contract migrations, worker reloads, health gates, rehearsed rollbacks. |
 | [CI/CD for Laravel](chapters/runtime/ci-cd.md) | 📖 | The pipeline that mirrors your support reality: static gates, the version matrix, evidence-backed trust marks. |
