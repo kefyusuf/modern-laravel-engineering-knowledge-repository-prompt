@@ -1,7 +1,7 @@
 ---
 title: Event-driven architecture
 topic: eda
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 ---
 

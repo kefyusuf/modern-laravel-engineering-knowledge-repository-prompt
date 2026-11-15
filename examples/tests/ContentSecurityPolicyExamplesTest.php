@@ -18,6 +18,11 @@ it('carries the exact policy contract on every rendered response', function () {
 
     $policy = $response->headers->get('Content-Security-Policy');
 
+    // The contract asserted EXACTLY: a policy that silently grew
+    // 'unsafe-inline' (or lost a directive) must fail CI — containment
+    // fragments below are the readable diagnostics, this is the gate.
+    expect($policy)->toBe(ContentSecurityPolicy::POLICY);
+
     // The contract, directive by directive — deny-by-default base plus
     // narrow grants (MDN's directive list is the review checklist).
     expect($policy)->toContain("default-src 'self'");

@@ -1,7 +1,7 @@
 ---
 title: Message broker topologies
 topic: broker-topologies
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 ---
 
@@ -79,7 +79,7 @@ The rules the diagram encodes:
 3. **The parking lot is monitored, not a graveyard** — it's the failed-jobs
    discipline with a name and an alert ([observability](../quality/observability.md)).
 4. **Publishers never pick queues ad hoc** — the queue name lives beside the
-   job (its `viaQueue()`/dispatch site), reviewed like a route.
+   job (its `$queue` property or the dispatch site), reviewed like a route.
 
 ## The simplest correct implementation
 
@@ -101,17 +101,16 @@ final class DeliverPartnerWebhook implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     // The queue IS the topology: latency-critical, isolated, its own
-    // worker pool and retry budget (Queues chapter retry policy).
+    // worker pool and retry budget (Queues chapter retry policy). The
+    // $queue PROPERTY is how a job names its queue — the dispatch site
+    // can override with ->onQueue(), but the default lives on the job.
+    public $queue = 'webhooks';
+
     public function __construct(public readonly int $endpointId) {}
 
-    public function viaQueue(): string
+    public function handle(PartnerWebhookSender $sender): void
     {
-        return 'webhooks';
-    }
-
-    public function handle(): void
-    {
-        // ...
+        $sender->deliver($this->endpointId);
     }
 }
 ```
@@ -203,7 +202,7 @@ final class DeliverPartnerWebhook implements ShouldQueue
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
-| Named queues / `viaQueue()` / per-connection workers | ✅ | ✅ | ✅ | ✅ |
+| Named queues (`$queue` property / `onQueue()`) / per-connection workers | ✅ | ✅ | ✅ | ✅ |
 | `queue:monitor` per queue | ✅ | ✅ | ✅ | ✅ |
 | Job batching / chains (topology-free fan-out) | ✅ | ✅ | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |

@@ -1,7 +1,7 @@
 ---
 title: External brokers
 topic: external-brokers
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x docs, RabbitMQ/Kafka package docs, 2026-11"
 ---
 
@@ -89,17 +89,16 @@ by rules; consumers read queues.** The exchange types ARE the patterns:
 | **Headers** | Message headers | Rarely needed; topic covers most |
 
 The Laravel integration today is the community queue driver
-(**`vladimir-yuldashev/laravel-queue-rabbitmq`** — the established driver,
-major versions tracking Laravel's; a known compatibility quirk exists with
-the newest Laravel 12 point releases, so pin deliberately — and the
-newer **`iamfarhad/laravel-rabbitmq`** as an alternative). Two things to
-know before adopting: it integrates RabbitMQ as a *queue driver* (work
-distribution — exchange/routing design sits in your publishing code), and
-it supports Horizon. The exchange/routing layer beyond job distribution is
-your code talking to the RabbitMQ client directly — the patterns above are
-yours to implement, and [broker topologies](broker-topologies.md)' rules
-(name by concern, retry lanes, parking lots) map onto dead-letter exchanges
-and routing keys.
+(**`vladimir-yuldashev/laravel-queue-rabbitmq`** — the established driver;
+Laravel 10 support begins v13.2, L11 v14.1+, L12 v14.4+, and **v15.0+ covers
+Laravel 13** — with the newer **`iamfarhad/laravel-rabbitmq`** as an
+alternative). Two things to know before adopting: it integrates RabbitMQ as
+a *queue driver* (work distribution — exchange/routing design sits in your
+publishing code), and it supports Horizon. The exchange/routing layer beyond
+job distribution is your code talking to the RabbitMQ client directly — the
+patterns above are yours to implement, and [broker
+topologies](broker-topologies.md)' rules (name by concern, retry lanes,
+parking lots) map onto dead-letter exchanges and routing keys.
 
 The disciplines that carry over unchanged: idempotent consumers
 ([idempotency](idempotency.md)), durable publication
@@ -126,8 +125,10 @@ each partition ordered, history retained.** The patterns:
   ([idempotency](idempotency.md)) stops being optional.
 
 The Laravel integration is the community package
-(**`mateusjunges/laravel-kafka`** — actively maintained, Laravel 11/12, a
-`Kafka` facade for producing and consuming). The operational ownership is
+(**`mateusjunges/laravel-kafka`** — actively maintained, a `Kafka` facade
+for producing and consuming; version support per release: v2.10+ covers
+Laravel 12, v2.13+ covers Laravel 13 and DROPS Laravel 11 — L11 pins
+v2.3–v2.12). The operational ownership is
 the real cost: partitions, replication, rebalancing, retention — Kafka is a
 cluster you operate (or rent), and its semantics
 (at-least-once + ordering per partition) must match your consumers'
@@ -240,13 +241,16 @@ idempotent consumers, dedupe on the consumer side.
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
 | First-class RabbitMQ/Kafka driver in core | ❌ community packages | ❌ | ❌ | ❌ |
-| `vladimir-yuldashev/laravel-queue-rabbitmq` | ✅ (v8+ covers 10) | ✅ (v14.x) | ✅ (v14.x; pin deliberately — a quirk exists with the newest L12 point releases) | ✅ via alternatives |
-| `mateusjunges/laravel-kafka` | ⚠️ (check the package's Laravel constraint) | ✅ (v2.x) | ✅ (v2.13+) | ✅ (verify constraint per release) |
+| `vladimir-yuldashev/laravel-queue-rabbitmq` | ✅ v13.2+ | ✅ v14.1+ | ✅ v14.4+ | ✅ v15.0+ |
+| `mateusjunges/laravel-kafka` | ⚠️ check the package constraint | ✅ v2.3–v2.12 | ✅ v2.10+ | ✅ v2.13+ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
 
-The community packages track Laravel majors independently — the matrix
-rule ([ci-cd](../runtime/ci-cd.md)) is what verifies their compatibility per release;
-treat their pins as part of your dependency contract.
+The community packages track Laravel majors independently (versions verified
+against packagist, 2026-11-15) — the matrix rule
+([ci-cd](../runtime/ci-cd.md)) is what verifies their compatibility per
+release; treat their pins as part of your dependency contract. Note the
+Kafka package's v2.13 dropping Laravel 11 — an upgrade that must be
+coordinated in reverse.
 
 ## Related
 
@@ -260,4 +264,4 @@ treat their pins as part of your dependency contract.
   mandatory.
 - [Redis](../data/redis.md) / [Queues](queues.md) — the simpler systems that
   cover most needs first.
-- Roadmap:Debezium-class CDC deep dive, schema-registry patterns.
+- Roadmap: Debezium-class CDC deep dive, schema-registry patterns.

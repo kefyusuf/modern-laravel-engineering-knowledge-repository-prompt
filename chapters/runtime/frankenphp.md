@@ -1,7 +1,7 @@
 ---
 title: FrankenPHP standalone
 topic: frankenphp
-status: draft
+status: reviewed
 reviewed-against: "FrankenPHP 1.x docs, 2026-11"
 ---
 

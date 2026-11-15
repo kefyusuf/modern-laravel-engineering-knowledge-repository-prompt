@@ -1,7 +1,7 @@
 ---
 title: Preview environments
 topic: preview-environments
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x docs, 2026-11"
 ---
 
@@ -197,4 +197,4 @@ version-agnostically — the framework's contribution is the health gate
   disciplines.
 - [Observability](../quality/observability.md) — the health checks the
   provisioning gate verifies.
-- Roadmap: multi-preview topology sharing, cost attribution dashboards.
+- Roadmap: multi-preview topology sharing.

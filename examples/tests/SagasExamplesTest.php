@@ -12,23 +12,24 @@ it('compensates executed steps in reverse when a later step fails', function () 
     /** @example-id sagas/compensation-on-failure */
 
     // The steps' "remote effects" are rows in saga_step_effects; the second
-    // step's dependency fails (throws), as injected at its seam.
+    // step's dependency fails (throws), as injected at its seam. The runner
+    // hands each step its saga id — the closures use it, not hardcoded ids.
     $steps = [
         [
             'name' => 'reserve_inventory',
-            'run' => function () {
+            'run' => function (int $sagaId): void {
                 DB::table('saga_step_effects')->insert([
-                    'saga_id' => 1, 'step' => 'reserve_inventory', 'created_at' => now(),
+                    'saga_id' => $sagaId, 'step' => 'reserve_inventory', 'created_at' => now(),
                 ]);
             },
-            'undo' => fn () => SagaRunner::undoEffect(1, 'reserve_inventory'),
+            'undo' => fn (int $sagaId) => SagaRunner::undoEffect($sagaId, 'reserve_inventory'),
         ],
         [
             'name' => 'capture_payment',
-            'run' => function () {
+            'run' => function (int $sagaId): void {
                 throw new RuntimeException('payment gateway down');
             },
-            'undo' => fn () => SagaRunner::undoEffect(1, 'capture_payment'),
+            'undo' => fn (int $sagaId) => SagaRunner::undoEffect($sagaId, 'capture_payment'),
         ],
     ];
 

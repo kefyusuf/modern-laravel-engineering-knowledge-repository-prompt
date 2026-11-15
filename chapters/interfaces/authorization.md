@@ -1,7 +1,7 @@
 ---
 title: Authorization
 topic: authorization
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 testbed: examples/tests/AuthorizationExamplesTest.php
 ---
@@ -236,12 +236,21 @@ mechanical:
 ```php
 <?php
 
-// bootstrap/app.php or a dedicated provider — the route→ability map:
-Route::middleware('can:view,App\Models\Invoice')->group(function () {
+// A dedicated service provider's boot() — the route→ability map. The
+// argument names the ROUTE PARAMETER (`invoice`), so the middleware
+// resolves the bound model and the policy receives the instance:
+Route::middleware('can:view,invoice')->group(function () {
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
-    // ...
+    Route::get('/invoices/{invoice}/lines', [InvoiceController::class, 'lines']);
 });
 ```
+
+Two argument forms, deliberately different: `'can:view,invoice'` (route
+parameter) resolves the bound model and hands the policy the INSTANCE; the
+FQCN form (`'can:create,App\Models\Invoice'`) is for instance-less
+abilities (create-style checks where there is no row yet) — using the FQCN
+form for an instance check hands the policy a class *string* instead of the
+model, which with a typed policy method is a 500, not a 403.
 
 Inline `can:` middleware per route, grouped per resource — the policy name
 appears ON the route, so a grep over the route files IS the authorization

@@ -1,7 +1,7 @@
 ---
 title: Row-level security
 topic: row-level-security
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 testbed: examples/tests/RowLevelSecurityExamplesTest.php
 ---
@@ -128,8 +128,10 @@ Application scopes bound *application* queries. PostgreSQL's RLS binds the
 ```sql
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
+-- missing_ok = true: an unset setting reads as NULL, which fails the
+-- comparison closed (deny). Without it, an unset setting ERRORS.
 CREATE POLICY tenant_isolation ON orders
-    USING (tenant_id = current_setting('app.current_tenant')::int);
+    USING (tenant_id = current_setting('app.current_tenant', true)::int);
 ```
 
 The application sets the tenant per session/transaction
@@ -139,8 +141,9 @@ cross-tenant rows even to `SELECT *`. Requirements:
 
 - **Superusers bypass RLS by default** (`FORCE ROW LEVEL SECURITY` for table
   owners) — know which roles are exempt.
-- **The session variable must be set** — an unset setting makes the policy
-  deny (or pass, per policy design — choose fail-closed).
+- **The session variable must be set — unset fails closed** (NULL comparison
+  denies), and a NULL-valued setting also denies; neither direction ever
+  "passes" without a matching tenant.
 - **Migrations/seeds run as an exempt role** — the exemption list is small
   and audited.
 

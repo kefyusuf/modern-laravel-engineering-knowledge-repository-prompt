@@ -1,7 +1,7 @@
 ---
 title: Sagas and process managers
 topic: sagas
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 testbed: examples/tests/SagasExamplesTest.php
 ---
@@ -13,7 +13,7 @@ of steps 1 and 2 is *undone* through explicit reverse actions — because there
 is no distributed transaction to roll everything back. The "process manager"
 is the code that owns the flow's state: which steps ran, what to do on failure,
 what to do on timeout. This chapter is the hand-built, Laravel-native version —
-no framework for it exists (as of Laravel 13), and the patterns are small
+no first-class framework ships in core (through Laravel 13), and the patterns are small
 enough to own.
 
 ## TL;DR
@@ -85,7 +85,7 @@ elegant event graph you can't answer "where is order 42's flow?" about.
 
 ## The simplest correct implementation
 
-The state table plus an orchestrator with explicit compensation:
+The state tables plus an orchestrator with explicit compensation:
 
 ```php
 <?php
@@ -103,10 +103,30 @@ return new class extends Migration
             $table->string('flow');              // 'order_fulfillment'
             $table->unsignedBigInteger('aggregate_id');
             $table->string('state');             // running | completed | compensated | failed
-            $table->json('completed_steps');     // executed, in order — the compensation map
+            $table->json('completed_steps');     // executed STEP NAMES, in order — the recovery input
             $table->timestamp('created_at');
             $table->timestamp('updated_at')->nullable();
             $table->index(['flow', 'aggregate_id']);
+        });
+
+        // The stand-in for each step's REMOTE effect — what the compensation
+        // reverses. A real saga's table here is per-step-system.
+        Schema::create('saga_step_effects', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('saga_id');
+            $table->string('step');
+            $table->timestamp('created_at');
+            $table->unique(['saga_id', 'step']);
+        });
+
+        // The compensation ledger: its unique index IS the idempotency of
+        // the undo (Idempotency chapter, layer 3).
+        Schema::create('saga_compensations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('saga_id');
+            $table->string('step');
+            $table->timestamp('created_at');
+            $table->unique(['saga_id', 'step']);
         });
     }
 };
@@ -122,13 +142,14 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The process manager: owns the flow's state, runs steps in order, and
- * compensates in reverse on failure. Each step is a callable pair:
- * the action and its compensation — both idempotent (Idempotency chapter).
+ * compensates in reverse on failure. Each step is a NAMED callable pair:
+ * the action and its compensation — both idempotent (Idempotency chapter);
+ * the name is the recovery ledger's key.
  */
 final class SagaRunner
 {
     /**
-     * @param  array<int, array{run: callable(int $sagaId): void, undo: callable(int $sagaId): void}>  $steps
+     * @param  array<int, array{name: string, run: callable(int $sagaId): void, undo: callable(int $sagaId): void}>  $steps
      */
     public function run(string $flow, int $aggregateId, array $steps): void
     {
@@ -149,10 +170,14 @@ final class SagaRunner
 
                 // The state update commits SEPARATELY from the step's own
                 // work: the saga must know what ran even if the step's
-                // system is down at query time.
+                // system is down at query time. The ledger records the
+                // STEP NAMES — the recovery input, not array indexes.
                 DB::table('saga_instances')
                     ->where('id', $sagaId)
-                    ->update(['completed_steps' => json_encode(array_keys($executed)), 'updated_at' => now()]);
+                    ->update([
+                        'completed_steps' => json_encode(array_column($executed, 'name')),
+                        'updated_at' => now(),
+                    ]);
             }
 
             DB::table('saga_instances')->where('id', $sagaId)
@@ -195,25 +220,29 @@ final class Compensations
 {
     /**
      * The undo claims its compensation via the unique (saga_id, step)
-     * ledger — a retried undo (the compensation's own queue retried it, or
-     * the saga was re-driven) is a no-op.
+     * ledger — and the claim + the reversal commit ATOMICALLY (the same-
+     * transaction rule every layer-3 dedupe follows): a retried undo is a
+     * no-op, and a crash mid-undo never leaves the ledger saying
+     * "compensated" while the effect still stands.
      */
     public static function undoEffect(int $sagaId, string $step): void
     {
-        $claimed = DB::table('saga_compensations')->insertOrIgnore([
-            'saga_id' => $sagaId,
-            'step' => $step,
-            'created_at' => now(),
-        ]);
+        DB::transaction(function () use ($sagaId, $step) {
+            $claimed = DB::table('saga_compensations')->insertOrIgnore([
+                'saga_id' => $sagaId,
+                'step' => $step,
+                'created_at' => now(),
+            ]);
 
-        if ($claimed === 0) {
-            return; // already compensated — the retried undo is a no-op
-        }
+            if ($claimed === 0) {
+                return; // already compensated — the retried undo is a no-op
+            }
 
-        DB::table('saga_step_effects')
-            ->where('saga_id', $sagaId)
-            ->where('step', $step)
-            ->delete();
+            DB::table('saga_step_effects')
+                ->where('saga_id', $sagaId)
+                ->where('step', $step)
+                ->delete();
+        });
     }
 }
 ```

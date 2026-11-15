@@ -1,7 +1,7 @@
 ---
 title: Online DDL
 topic: online-ddl
-status: draft
+status: reviewed
 reviewed-against: "MySQL 8.0/8.4 & PostgreSQL 16 docs, 2026-11"
 ---
 
@@ -82,7 +82,10 @@ Before reaching for tooling, spend the cheap operations wisely:
 
 ## The simplest correct implementation
 
-Explicitness — the migration states its algorithm and the preconditions:
+The operations differ per engine — so do the migrations. Explicitness is the
+constant: the migration states its algorithm and the preconditions.
+
+**MySQL** (nullable column is INSTANT on 8.0.12+; the index builds INPLACE):
 
 ```php
 <?php
@@ -90,50 +93,57 @@ Explicitness — the migration states its algorithm and the preconditions:
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Cheap on MySQL 8.0.12+ (INSTANT) and PostgreSQL (near-instant):
-        // a nullable column with no default is metadata-only. If your
-        // version/engine needs a rebuild, this belongs behind tooling
-        // instead — verify before running on the big table.
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('campaign_id')->nullable()->after('merchant_id');
-        });
+        // Declare the algorithm: if the engine cannot satisfy it online,
+        // the ALTER FAILS LOUDLY instead of silently blocking the table —
+        // a failed migration is recoverable; a blocked table is an outage.
+        DB::statement(
+            'ALTER TABLE orders ADD COLUMN campaign_id BIGINT NULL, ALGORITHM=INSTANT'
+        );
 
-        // The access-path index: built online on MySQL (INPLACE,
-        // LOCK=NONE); on PostgreSQL it must be CONCURRENTLY — which
-        // transactions forbid, so it runs as raw SQL outside the
-        // migration transaction:
-        DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS orders_campaign_id_index ON orders (campaign_id)');
+        // The access-path index builds INPLACE with LOCK=NONE. `->after()`
+        // is a MySQL-only modifier — fine here, meaningless elsewhere.
+        Schema::table('orders', function (Blueprint $table) {
+            $table->index('campaign_id');
+        });
     }
 };
 ```
 
-For MySQL, an explicit guard makes the algorithm visible in the failure:
+**PostgreSQL** (nullable ADD COLUMN is near-instant; the index must be
+`CONCURRENTLY` — which CANNOT run inside a transaction, so this migration
+opts out of the framework's transaction wrapper via a documented migration
+property):
 
 ```php
 <?php
 
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-// Declare the algorithm: if the engine cannot satisfy it online, the ALTER
-// FAILS LOUDLY instead of silently blocking the table — a failed migration
-// is recoverable; a blocked table is an outage.
-DB::statement(
-    'ALTER TABLE orders ADD COLUMN campaign_id BIGINT NULL, ALGORITHM=INSTANT'
-);
+return new class extends Migration
+{
+    public $withinTransaction = false; // CREATE INDEX CONCURRENTLY forbids transactions
 
-// PostgreSQL's CONCURRENTLY already refuses to run inside a transaction —
-// the framework's migration transaction is the loud failure there.
+    public function up(): void
+    {
+        DB::statement('ALTER TABLE orders ADD COLUMN campaign_id BIGINT NULL');
+
+        // CONCURRENTLY: no table lock during the build. A failed build
+        // leaves an INVALID index behind — drop it before retrying.
+        DB::statement('CREATE INDEX CONCURRENTLY orders_campaign_id_index ON orders (campaign_id)');
+    }
+};
 ```
 
 The pattern that matters: **declare the algorithm, let the engine refuse
-non-online combinations loudly** — a failed migration is recoverable; a
-blocked table is an outage.
+non-online combinations loudly, and never mix engines' syntaxes in one
+migration** — a failed migration is recoverable; a blocked table is an
+outage.
 
 ## What production requires
 
@@ -273,4 +283,4 @@ DDL documentation before a big-table change.
   paths justify the DDL in the first place.
 - [Testing the failure paths](../quality/testing.md) — rehearsing the
   migration against production-shaped data.
-- Roadmap: online DDL on managed platforms (gh-ost vs RDS blue/green).
+- Roadmap: managed-platform DDL comparisons (RDS blue/green vs in-place) as deployments age.

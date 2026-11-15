@@ -1,7 +1,7 @@
 ---
 title: Redis as infrastructure
 topic: redis
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 testbed: examples/tests/RedisExamplesTest.php
 ---

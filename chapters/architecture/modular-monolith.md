@@ -1,7 +1,7 @@
 ---
 title: The modular monolith
 topic: modular-monolith
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-09"
 ---
 

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 final class SagaRunner
 {
     /**
-     * @param  array<int, array{name: string, run: callable(): void, undo: callable(): void}>  $steps
+     * @param  array<int, array{name: string, run: callable(int): void, undo: callable(int): void}>  $steps
      */
     public function run(string $flow, int $aggregateId, array $steps): void
     {
@@ -29,7 +29,7 @@ final class SagaRunner
 
         try {
             foreach ($steps as $step) {
-                $step['run']();
+                $step['run']($sagaId);
                 $executed[] = $step;
 
                 // State commits SEPARATELY from each step's own effect —
@@ -58,23 +58,28 @@ final class SagaRunner
 
     /**
      * sagas/compensation-idempotent: an undo claims its compensation via the
-     * unique (saga_id, step) ledger — a retried undo is a no-op.
+     * unique (saga_id, step) ledger — and the claim + the reversal commit
+     * ATOMICALLY (the same-transaction rule every layer-3 dedupe follows):
+     * a retried undo is a no-op, and a crash mid-undo never leaves the
+     * ledger saying "compensated" while the effect still stands.
      */
     public static function undoEffect(int $sagaId, string $step): void
     {
-        $claimed = DB::table('saga_compensations')->insertOrIgnore([
-            'saga_id' => $sagaId,
-            'step' => $step,
-            'created_at' => now(),
-        ]);
+        DB::transaction(function () use ($sagaId, $step) {
+            $claimed = DB::table('saga_compensations')->insertOrIgnore([
+                'saga_id' => $sagaId,
+                'step' => $step,
+                'created_at' => now(),
+            ]);
 
-        if ($claimed === 0) {
-            return; // already compensated — the retried undo is a no-op
-        }
+            if ($claimed === 0) {
+                return; // already compensated — the retried undo is a no-op
+            }
 
-        DB::table('saga_step_effects')
-            ->where('saga_id', $sagaId)
-            ->where('step', $step)
-            ->delete();
+            DB::table('saga_step_effects')
+                ->where('saga_id', $sagaId)
+                ->where('step', $step)
+                ->delete();
+        });
     }
 }

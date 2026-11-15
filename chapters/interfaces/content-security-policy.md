@@ -1,7 +1,7 @@
 ---
 title: Content-Security-Policy
 topic: content-security-policy
-status: draft
+status: reviewed
 reviewed-against: "MDN CSP docs & Laravel 12.x, 2026-11"
 testbed: examples/tests/ContentSecurityPolicyExamplesTest.php
 ---
@@ -208,7 +208,7 @@ lines and zero dependencies — both are legitimate; pick per team.
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
-| Middleware registration surface | `Http/Kernel` | `bootstrap/app.php` | ✅ slim | ✅ slim |
+| Middleware registration surface | `Http/Kernel` | slim skeleton (`bootstrap/app.php`) | slim skeleton | slim skeleton |
 | Response header APIs (`headers->set`) | ✅ | ✅ | ✅ | ✅ |
 | Vite integration (build output shape) | ✅ | ✅ | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
@@ -224,4 +224,4 @@ beyond the middleware registration surface.
   contract lives there.
 - [Deployment](../runtime/deployment.md) — the header ships with the
   release; rollout discipline is release discipline.
-- Roadmap: trusted-types deep dive, per-route policy registries.
+- Roadmap: trusted-types adoption notes for heavy client-rendering apps.

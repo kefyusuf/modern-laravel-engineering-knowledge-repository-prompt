@@ -1,7 +1,7 @@
 ---
 title: Transactions
 topic: transactions
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-09"
 testbed: examples/tests/TransactionsExamplesTest.php
 ---

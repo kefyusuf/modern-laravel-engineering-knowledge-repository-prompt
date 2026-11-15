@@ -1,7 +1,7 @@
 ---
 title: Observability
 topic: observability
-status: draft
+status: reviewed
 reviewed-against: "Laravel 12.x & 13.x docs, 2026-11"
 testbed: examples/tests/ObservabilityExamplesTest.php
 ---
@@ -235,6 +235,15 @@ lean; a log pipeline is itself an ops surface.
 
 ## How to operate it
 
+- **The dashboard is the contract:** one page per concern with its four signals
+  — if a chapter's *operate* section names a metric, it's on a dashboard here.
+- **Every alert links a runbook**; a runbook names the dashboard, the first
+  query, and the safe action — not a paragraph of theory.
+- **Log retention:** hot (searchable, days) vs archive (cheap, months) — and
+  know which systems log PII *before* retention policy has to answer for it.
+- **3am runbook entry zero:** "find the request id / job id from the customer's
+  report" — if that step takes more than a minute, this chapter isn't done.
+
 ### Cost attribution — the observability bill, owned
 
 Telemetry spend scales with traffic and verbosity; the discipline that keeps
@@ -244,21 +253,12 @@ their own telemetry) has a monthly cost label, and the dashboards that
 consume it name their pipeline. The decisions this drives:
 
 - **Sampling budgets per pipeline** — high-volume success paths sample down;
-  errors and slow paths stay at 100% ([how it scales](#how-it-scales)).
+  errors and slow paths stay at 100%.
 - **Verbosity as a config, not a code change** — log levels and context
   volume tuned per environment from the cost dashboard.
 - **The review cadence:** cost spikes are treated like latency spikes — a
   regression to investigate (a debug log left on, a new high-cardinality
   label), with the same deploy correlation.
-
-- **The dashboard is the contract:** one page per concern with its four signals
-  — if a chapter's *operate* section names a metric, it's on a dashboard here.
-- **Every alert links a runbook**; a runbook names the dashboard, the first
-  query, and the safe action — not a paragraph of theory.
-- **Log retention:** hot (searchable, days) vs archive (cheap, months) — and
-  know which systems log PII *before* retention policy has to answer for it.
-- **3am runbook entry zero:** "find the request id / job id from the customer's
-  report" — if that step takes more than a minute, this chapter isn't done.
 
 ## How it scales
 
