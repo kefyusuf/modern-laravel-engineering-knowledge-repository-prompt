@@ -7,7 +7,7 @@ title: Version policy
 The repository tracks **Laravel 10 → 13** and the PHP versions they support. This
 document defines how version-sensitive claims are recorded, verified, and retired.
 
-## Current support reality (stated as of 2026-09)
+## Current support reality (stated as of 2026-11)
 
 | Version | Released | Bug fixes until | Security fixes until | Status 2026-09 |
 |---|---|---|---|---|

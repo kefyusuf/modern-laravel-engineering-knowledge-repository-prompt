@@ -68,16 +68,21 @@ it('retries only deadlock-class failures and rethrows business exceptions', func
     /** @example-id transactions/deadlock-retry */
     $calls = 0;
 
-    // A business exception is never retried.
+    // A business exception is never retried (the closure throws
+    // unconditionally, so the fail() line inside would be unreachable —
+    // the $threw flag IS the assertion).
+    $threw = false;
     try {
-        DB::transaction(function () use (&$calls) {
+        DB::transaction(function () use (&$calls, &$threw) {
             $calls++;
+            $threw = true;
             throw new RuntimeException('insufficient stock');
         }, attempts: 3);
-        $this->fail('expected exception');
     } catch (RuntimeException) {
-        expect($calls)->toBe(1);
     }
+
+    expect($threw)->toBeTrue();
+    expect($calls)->toBe(1);
 
     // A deadlock-class failure re-runs the closure. The detector accepts a
     // raw PDOException with SQLSTATE 40001 (verified against

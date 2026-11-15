@@ -7,6 +7,7 @@
   },
   "require-dev": {
     "laravel/framework": "^12.0",
+    "nunomaduro/larastan": "^2.9 || ^3.0",
     "orchestra/testbench": "^10.0",
     "pestphp/pest": "^2.34 || ^3.0",
     "predis/predis": "^2.0"

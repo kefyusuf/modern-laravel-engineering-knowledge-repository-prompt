@@ -1,0 +1,115 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Cache\\Lock\:\:acquire\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/CachingExamplesTest.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: tests/DatabasePerformanceExamplesTest.php
+
+		-
+			message: '#^Class Illuminate\\Database\\Eloquent\\LazyLoadingViolationException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/EloquentExamplesTest.php
+
+		-
+			message: '#^Access to an undefined property MLE\\Examples\\Tests\\Fixtures\\Models\\Order\:\:\$customer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Fixtures/Authorization/OrderPolicy.php
+
+		-
+			message: '#^Access to an undefined property MLE\\Examples\\Tests\\Fixtures\\Models\\Order\:\:\$tenant_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Fixtures/Authorization/OrderPolicy.php
+
+		-
+			message: '#^Access to an undefined property MLE\\Examples\\Tests\\Fixtures\\Models\\User\:\:\$is_admin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Fixtures/Authorization/OrderPolicy.php
+
+		-
+			message: '#^Access to an undefined property MLE\\Examples\\Tests\\Fixtures\\Models\\User\:\:\$tenant_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Fixtures/Authorization/OrderPolicy.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Cache\\Repository\:\:lock\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Fixtures/Caching.php
+
+		-
+			message: '#^Property MLE\\Examples\\Tests\\Fixtures\\Domain\\PurchaseOrder\:\:\$id is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: tests/Fixtures/Domain/PurchaseOrder.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Cache\\Lock\:\:acquire\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Fixtures/Locking.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Cache\\Lock\:\:acquire\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/LockingExamplesTest.php
+
+		-
+			message: '#^Cannot access property \$available on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: tests/LockingExamplesTest.php
+
+		-
+			message: '#^Cannot access property \$invoiced_at on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: tests/QueuesExamplesTest.php
+
+		-
+			message: '#^Cannot access property \$status on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/QueuesExamplesTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Cache\\Repository\:\:lock\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/RedisExamplesTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:redisRequired\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/RedisExamplesTest.php
+
+		-
+			message: '#^Access to an undefined property MLE\\Examples\\Tests\\Fixtures\\Models\\User\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/SecurityExamplesTest.php
+
+		-
+			message: '#^Job class MLE\\Examples\\Tests\\Fixtures\\Testing\\BrittleJob does not have a constructor and must be dispatched without any parameters\.$#'
+			identifier: larastan.jobs.noConstructor
+			count: 1
+			path: tests/TestingExamplesTest.php
+
+		-
+			message: '#^Cannot access property \$available on array\<mixed\>\|object\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: tests/TransactionsExamplesTest.php
