@@ -41,6 +41,7 @@ chapters assume the earlier ones' vocabulary.
 | [Redis as infrastructure](chapters/data/redis.md) | ⚙️ | The decisions that matter once Redis is load-bearing: client choice, memory and eviction policy, durability expectations, failure drills. |
 | [Eloquent at scale](chapters/data/eloquent.md) | ⚙️ | The three costs that dominate Eloquent under load — N+1, hydration, unbatched writes — and the guardrails that make them test failures. |
 | [Database performance](chapters/data/database-performance.md) | ⚙️ | Plans over guesses: access paths, round trips, and pagination that doesn't degrade — with the assertions to keep them honest. |
+| [Online DDL](chapters/data/online-ddl.md) | 📖 | Schema changes on big tables without stopping the app: the cheapest-first ladder, the metadata-lock trap, and the tooling for the rest. |
 
 ### Messaging & integration
 
@@ -49,6 +50,8 @@ chapters assume the earlier ones' vocabulary.
 | [Queues](chapters/messaging/queues.md) | ⚙️ | Deferred work you can trust: drivers, retries, ordering, poison messages, and the worker footguns that eat weekends. |
 | [Idempotency](chapters/messaging/idempotency.md) | ⚙️ | Safe retries at every boundary: keys, dedupe stores, and why "at-least-once" means your consumers are already running this pattern — badly. |
 | [The transactional outbox](chapters/messaging/outbox.md) | ⚙️ | Publishing events reliably when the database is the source of truth — including the inbox half of the contract. |
+| [Sagas and process managers](chapters/messaging/sagas.md) | ⚙️ | Multi-step flows with compensation: a state table, ordered steps, idempotent undos, and the failures each prevents. |
+| [Message broker topologies](chapters/messaging/broker-topologies.md) | 📖 | Queue partitioning by concern and criticality, retry lanes, parking lots — the wiring plan behind queues. |
 
 ### Architecture
 
@@ -88,9 +91,10 @@ engineering judgment.
 The original topic list is now fully covered. Remaining ideas — smaller,
 deeper, or newer than the core chapters — live here as they mature:
 
-- **Deeper dives:** saga/process-manager patterns · message-broker topologies ·
-  online DDL tooling · content-security-policy tuning · row-level security ·
-  preview environments & merge queues · Mercure/streaming patterns
+- **Deeper dives:** exchange-pattern deep dive (RabbitMQ) · Kafka integration
+  patterns · workflow-engine comparison · Mercure/streaming patterns ·
+  content-security-policy tuning · row-level security · preview environments ·
+  online DDL on managed platforms · supervisor config templates
 
 Start with a [chapter proposal](.github/ISSUE_TEMPLATE/chapter-proposal.yml);
 the [content standard](docs/content-standard.md) defines done.

@@ -134,5 +134,34 @@ return new class extends Migration
             $table->string('key');
             $table->timestamp('created_at');
         });
+
+        // sagas chapter: the process manager's state, the stand-in for each
+        // step's remote effect, and the compensation dedupe ledger.
+        Schema::create('saga_instances', function (Blueprint $table) {
+            $table->id();
+            $table->string('flow');
+            $table->unsignedBigInteger('aggregate_id');
+            $table->string('state');
+            $table->json('completed_steps');
+            $table->timestamp('created_at');
+            $table->timestamp('updated_at')->nullable();
+            $table->index(['flow', 'aggregate_id']);
+        });
+
+        Schema::create('saga_step_effects', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('saga_id');
+            $table->string('step');
+            $table->timestamp('created_at');
+            $table->unique(['saga_id', 'step']);
+        });
+
+        Schema::create('saga_compensations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('saga_id');
+            $table->string('step');
+            $table->timestamp('created_at');
+            $table->unique(['saga_id', 'step']);
+        });
     }
 };

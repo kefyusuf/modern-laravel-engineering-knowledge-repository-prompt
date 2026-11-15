@@ -97,3 +97,13 @@ mapped examples.
 **23 chapters total — the handbook's original 25-topic list is fully covered;
 mapping closes at 44↔44.** Further chapters graduate from the roadmap as
 concrete needs appear.
+
+## Wave 7 (2026-11) — deeper-dive wave 1
+
+| Chapter | Why next |
+|---|---|
+| `messaging/sagas` ⚙️ | The multi-step-flow pattern the outbox/EDA chapters kept referencing; compensation flow + idempotent-undo claims executed. |
+| `messaging/broker-topologies` 📖 | The wiring plan behind queues (partitioning, retry lanes, parking lots) — the deepest FAQ the queues chapter generates. |
+| `data/online-ddl` 📖 | The big-table schema discipline behind deployment's expand/contract; engine-behavior deep dive. |
+
+**26 chapters total; mapping grows to 46↔46.**
