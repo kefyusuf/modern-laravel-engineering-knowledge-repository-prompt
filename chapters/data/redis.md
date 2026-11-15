@@ -200,21 +200,30 @@ this handbook: encoded for real, skipped gracefully.
    a mixed instance; `allkeys-*` evicts a live lock. *Detection:* duplicate-execution
    metrics ([Locking](locking.md)) correlating with `evicted_keys` growth. *Fix:*
    separate instances or `volatile-*` + universal TTLs.
-2. **Redis as durable store.** *Root cause:* counters/dedupe state in Redis,
+2. **Tag flush silently a no-op (Laravel 10 + phpredis 6.x).** *Root cause:* a
+   framework bug — the zscan over the tag key is not executed under phpredis, so
+   `tags()->flush()` leaves every entry alive
+   ([laravel/framework#54060](https://github.com/laravel/framework/issues/54060);
+   caught by this handbook's own CI matrix — predis flushes fine on the same
+   version, and Laravel 11+ flushed correctly with phpredis). *Detection:* cached
+   values surviving a flush — invisible until the stale value does damage.
+   *Fix:* run the predis client on Laravel 10, upgrade the framework, or drop
+   tags for explicit key deletion.
+3. **Redis as durable store.** *Root cause:* counters/dedupe state in Redis,
    "it persists fine". *Detection:* data that vanishes after failover/restart.
    *Fix:* database of record; Redis only accelerates.
-3. **`KEYS` in production.** *Root cause:* debugging convenience. *Detection:*
+4. **`KEYS` in production.** *Root cause:* debugging convenience. *Detection:*
    latency spikes matching admin sessions. *Fix:* `SCAN` with COUNT; the runbook
    forbids `KEYS` explicitly.
-4. **Long-running workers and dropped connections.** *Root cause:* idle timeout
+5. **Long-running workers and dropped connections.** *Root cause:* idle timeout
    or failover between worker and Redis; the next command throws. *Detection:*
    intermittent RedisException in worker logs after quiet periods. *Fix:*
    framework reconnect-on-error posture + bounded worker recycling
    (`--max-jobs`/`--max-time`, [Queues](../messaging/queues.md)).
-5. **Shared instance without prefix separation.** *Root cause:* staging and prod
+6. **Shared instance without prefix separation.** *Root cause:* staging and prod
    on one Redis. *Detection:* impossible keys, wrong-environment cache hits. *Fix:*
    prefixes per environment — or better, separate instances.
-6. **Big keys.** *Root cause:* serialized arrays growing unbounded in one key.
+7. **Big keys.** *Root cause:* serialized arrays growing unbounded in one key.
    *Detection:* `--bigkeys` scan; memory plateau per key. *Fix:* hash buckets,
    expiries, size limits at the writer.
 
@@ -264,6 +273,7 @@ this handbook: encoded for real, skipped gracefully.
 | phpredis client (default) | ✅ | ✅ | ✅ | ✅ |
 | Predis 2.x client | ✅ | ✅ | ✅ | ✅ |
 | `Cache::store('redis')` locks + tags | ✅ | ✅ | ✅ | ✅ |
+| Tag flush on **phpredis 6.x** | ❌ broken — [framework#54060](https://github.com/laravel/framework/issues/54060); predis fine | ✅ | ✅ | ✅ |
 | `cache:prune-stale-tags` | ✅ | ✅ | ✅ | ✅ |
 | Sentinel support in core | ❌ community packages | ❌ | ❌ | ❌ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
