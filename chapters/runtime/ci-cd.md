@@ -140,12 +140,12 @@ jobs:
         run: vendor/bin/pest --ci
 ```
 
-(The sketch above is abridged: it omits the third job (the weekly
-external-link sweep), the scheduled dependency-audit job, the PHPStan step
-(baseline-gated, on the Laravel 12 cell), job `name:` fields, the `on:`
-triggers, `concurrency`, `working-directory: examples`, the Redis
-health-check options, and the composer-cache step — all of which are in the
-real [ci.yml](../../.github/workflows/ci.yml).)
+(The sketch above is abridged: it omits the weekly jobs (the external-link
+sweep and the scheduled dependency-audit), the PHPStan step (baseline-gated,
+on the Laravel 12 cell), job `name:` fields, the `on:` triggers,
+`concurrency`, `working-directory: examples`, the Redis health-check
+options, and the composer-cache step — all of which are in the real
+[ci.yml](../../.github/workflows/ci.yml).)
 
 What each piece is for:
 

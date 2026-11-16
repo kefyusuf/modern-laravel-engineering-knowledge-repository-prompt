@@ -298,3 +298,5 @@ Laravel 10 correlates jobs by passing ids explicitly in the job payload instead.
   detects and Octane discipline prevents.
 - [The modular monolith](../architecture/modular-monolith.md) — when logs stop
   being enough: tracing across module/event boundaries.
+- [Distributed tracing](tracing.md) — the third leg this chapter builds
+  toward; the spans behind the "trace the path" runbook entries.

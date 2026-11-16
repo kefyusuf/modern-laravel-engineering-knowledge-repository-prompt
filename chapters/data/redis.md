@@ -232,7 +232,8 @@ this handbook: encoded for real, skipped gracefully.
 - **With Redis (CI / any reachable server):** the ⚙️ tests here call
   `redisRequired()` and assert the real semantics — lock exclusivity and
   owner-checked release on the redis store, tag put/flush behavior
-  (`examples/tests/RedisExamplesTest.php`).
+  (`examples/tests/RedisExamplesTest.php`). The tag-flush assertions skip
+  on the Laravel 10 + phpredis combination (#54060, above).
 - **Without Redis:** the same tests skip — the array store tests in
   [Caching](caching.md) / [Locking](locking.md) cover the *logic*; this chapter's
   tests cover the *store*.

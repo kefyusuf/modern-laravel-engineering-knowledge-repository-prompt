@@ -27,11 +27,21 @@ contract.
 
 - **Dead letter / parking lot** — where exhausted messages land for human
   triage. [Broker topologies](../chapters/messaging/broker-topologies.md)
-- **Dedupe ledger** — a unique-indexed table whose claim insert is the
+- **Dedupe store** — a unique-indexed table whose claim insert is the
   idempotency guarantee. [Idempotency](../chapters/messaging/idempotency.md)
-- **Dual-write problem** — writing to a database and publishing to a broker
-  cannot be atomic; the outbox closes the gap.
-  [Outbox](../chapters/messaging/outbox.md)
+- **Deadlock** — two transactions holding locks the other needs; the engine
+  kills one (SQLSTATE 40001). Retry the loser, order multi-resource access
+  consistently. [Transactions](../chapters/data/transactions.md)
+- **CDC (Change Data Capture)** — streaming committed changes from the
+  database's transaction log; the outbox ladder's rung 5.
+  [CDC and Debezium](../chapters/messaging/cdc-streaming.md)
+- **Consumer group** — Kafka's independent-consumption unit: each group
+  reads the full topic, offsets managed per group.
+  [External brokers](../chapters/messaging/external-brokers.md)
+- **Eventual consistency** — consumers seeing updates after a bounded
+  window instead of atomically; the window is a product decision with a
+  metric. [EDA](../chapters/architecture/eda.md),
+  [CQRS](../chapters/architecture/cqrs.md)
 - **Expand/contract** — schema changes split across two releases so old code
   survives the overlap. [Deployment](../chapters/runtime/deployment.md)
 
@@ -76,6 +86,9 @@ contract.
 - **Saga** — a multi-step flow with compensation; partial failure is undone
   through idempotent reverse actions.
   [Sagas](../chapters/messaging/sagas.md)
+- **Sampling (head / tail)** — head sampling decides at trace start (can
+  miss errors); tail sampling at the collector keeps all error and slow
+  traces. [Tracing](../chapters/quality/tracing.md)
 - **Span** — one timed, attributed unit of work in a trace; spans link into
   the cross-hop tree. [Tracing](../chapters/quality/tracing.md)
 - **Stampede (cache)** — many requests recomputing one expired key at once;

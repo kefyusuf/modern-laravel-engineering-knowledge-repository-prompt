@@ -1,7 +1,7 @@
 ---
 title: Distributed tracing
 topic: tracing
-status: draft
+status: reviewed
 reviewed-against: "OpenTelemetry PHP docs, 2026-11"
 ---
 
@@ -69,7 +69,7 @@ package, exporting to any OTLP-compatible backend (Jaeger, Grafana Tempo,
 a vendor collector):
 
 ```text
-composer require open-telemetry/opentelemetry-laravel   # official instrumentation
+composer require open-telemetry/opentelemetry-auto-laravel   # official instrumentation
 
 # .env — the OTel-standard variables, read by the package:
 OTEL_SERVICE_NAME=checkout-api
@@ -79,11 +79,12 @@ OTEL_TRACES_SAMPLER_ARG=0.1        # head-sampling: keep ~10%, tune per flow
 ```
 
 Auto-instrumentation then covers HTTP requests, DB queries, and queue jobs
-(span creation + context propagation) without per-route code. For
-extension-less environments the SDK runs in pure PHP; the `otel` PHP
-extension accelerates it. Community alternatives
-(`keepsuit/laravel-opentelemetry`, LaraOTel) wrap the same SDK with more
-Laravel-specific defaults.
+(span creation + context propagation) without per-route code. **The
+auto-instrumentation hooks require the `otel` PHP extension** — without it
+no spans are produced (a silent failure, not a slower one); the SDK's manual
+API is pure PHP. Community alternatives
+(`keepsuit/laravel-opentelemetry`, LaraOTel) instrument via framework events
+instead of the extension.
 
 The `traceparent` header is the contract: the instrumentation reads and
 writes it automatically — inbound requests continue remote traces, outbound
@@ -118,16 +119,20 @@ span** — the connected tree is the deliverable, not "traces exist".
 - **Errors recorded on the failing span** with the exception — the trace
   becomes the runbook's first artifact.
 - **Sampling decides the bill:** head sampling (a percentage at trace
-  start — keep 100% of errors via the parent-based rules) is the default
-  lever; tail sampling (keep all slow/error traces at the collector) is the
-  upgrade when the budget matters
+  start — `parentbased_traceidratio`) is the default lever, but **head
+  sampling cannot preserve errors**: a trace whose root samples false is
+  dropped, errors included. Keeping 100% of errors is **tail sampling at
+  the collector** — keep all traces with an error status or beyond a
+  latency threshold, sample the rest
   ([cost attribution](observability.md#cost-attribution--the-observability-bill-owned)).
 
 ### The rollout
 
-1. Report/deploy in a **staging-first** posture: instrument, ship to a test
-   backend, verify the trees connect (request→job→downstream).
-2. **Production at low head-sampling** (1–10%) + 100% error visibility.
+1. Report to a **test backend first**: instrument, ship to a staging
+   collector, verify the trees connect (request→job→downstream).
+2. **Production with head sampling low (1–10%) + tail sampling at the
+   collector keeping 100% of error and slow traces** — head sampling alone
+   cannot promise error visibility.
 3. Raise sampling on the flows that answer open questions — sampling is a
    product decision per flow ([testing](../quality/testing.md)'s "assert
    state" philosophy applies to telemetry too: sample by question).
@@ -145,8 +150,8 @@ span** — the connected tree is the deliverable, not "traces exist".
    creation at that boundary — the discipline's whole point.
 3. **Sampling misses the incident.** *Root cause:* head sampling dropped
    the one trace that mattered. *Detection:* "the trace isn't there"
-   during an incident. *Fix:* parent-based error-preserving rules; tail
-   sampling when the budget allows.
+   during an incident. *Fix:* tail sampling at the collector keeping all
+   error and slow traces (head sampling cannot preserve errors).
 4. **Span spam.** *Root cause:* instrumenting loops (a span per item per
    row). *Detection:* the bill, and backends choking on span volume.
    *Fix:* spans per boundary; batch work gets one span with item counts as
@@ -199,16 +204,15 @@ span** — the connected tree is the deliverable, not "traces exist".
 
 | Behavior | Laravel 10 | Laravel 11 | Laravel 12 | Laravel 13 |
 |---|---|---|---|---|
-| Official OTel Laravel instrumentation support | ⚠️ (per package release) | ✅ | ✅ | ✅ |
-| Queue context propagation (framework metadata) | ✅ | ✅ | ✅ | ✅ |
+| Official OTel Laravel instrumentation (`opentelemetry-auto-laravel` v1.10, constraint `^10.0 ‖ ^11.0 ‖ ^12.0 ‖ ^13.0`) | ✅ | ✅ | ✅ | ✅ |
+| Queue context propagation (via the instrumentation's payload injection) | ✅ | ✅ | ✅ | ✅ |
 | W3C Trace Context propagation (HTTP layer) | ✅ (via instrumentation) | ✅ | ✅ | ✅ |
 | Minimum PHP | 8.1 | 8.2 | 8.2 | 8.3 |
 
 The OTel PHP ecosystem (SDK + Laravel instrumentation) evolves on its own
-release train, independent of Laravel's — its support matrix is checked per
-adopted version, and the ⚠️ marks exactly that: verify the package supports
-your Laravel before committing. The underlying propagation standard (W3C
-Trace Context) is stable everywhere.
+release train, independent of Laravel's — the package constraint above was
+verified against Packagist (2026-11-15). The underlying propagation standard
+(W3C Trace Context) is stable everywhere.
 
 ## Related
 

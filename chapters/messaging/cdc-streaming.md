@@ -1,7 +1,7 @@
 ---
 title: CDC and Debezium
 topic: cdc-streaming
-status: draft
+status: reviewed
 reviewed-against: "Debezium 3.x docs, 2026-11"
 ---
 
@@ -104,9 +104,11 @@ Three Debezium pieces matter for the outbox design:
 3. **Snapshot modes** — on first start the connector must capture existing
    rows: `initial` (default; a blocking consistent snapshot), `when_needed`
    (re-snapshots when offsets are lost), and for large outbox tables the
-   incremental snapshot signal (`snapshot.incremental`) that chunks the
-   work ([database performance](../data/database-performance.md) chunking
-   discipline, engine-native).
+   incremental snapshot — requested via an `execute-snapshot` signal with
+   data type `incremental`, processed in chunks
+   (`incremental.snapshot.chunk.size`) — the
+   [database performance](../data/database-performance.md) chunking
+   discipline, engine-native.
 
 The Laravel side: **the [outbox chapter's](outbox.md) reference
 implementation stays as-is** — the same table, the same

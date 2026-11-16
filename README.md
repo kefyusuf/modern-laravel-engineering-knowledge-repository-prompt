@@ -5,12 +5,13 @@ Not a syntax tutorial: every chapter answers what problem a technique solves, wh
 avoid it, what a production implementation requires, how it is tested and operated,
 and exactly which Laravel/PHP versions change the answer.
 
-**Status: reviewed (2026-11).** All 31 chapters passed three rounds of
-independent adversarial review (60 findings, all resolved); chapters marked
-⚙️ have their load-bearing examples **executed locally via Docker across the
-full Laravel 10–13 matrix** (2026-11; see [docs/examples.md](docs/examples.md)
-for the recorded run), and the CI workflow repeats that matrix on every push.
-Content licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
+**Status: reviewed (2026-11).** 31 of 34 chapters passed three rounds of
+independent adversarial review (60 findings, all resolved); the CDC, tracing,
+and Temporal chapters are in their first review cycle. Chapters marked ⚙️
+have their load-bearing examples **executed locally via Docker and in CI
+across the full Laravel 10–13 matrix** (see [docs/examples.md](docs/examples.md)
+for the recorded run). Content licensing: [CC BY 4.0](LICENSE.md) · code:
+[MIT](LICENSE-CODE).
 
 > **About the repository name:** the `-prompt` suffix is an artifact of how this
 > repository was created; the content is the handbook itself — nothing in it is
@@ -30,11 +31,12 @@ Content licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 
 Suggested reading order: **transactions → locking → queues → idempotency →
 outbox → sagas → temporal → caching → redis → eloquent → database-performance →
-row-level-security → modular monolith → boundaries → eda → ddd → CQRS →
-api-design → authorization → security → content-security-policy → observability →
-tracing → octane → testing → deployment → broker-topologies → external-brokers →
-ci-cd → mercure-streaming → preview-environments → frankenphp**. Later chapters
-assume the earlier ones' vocabulary.
+online-ddl → row-level-security → modular monolith → boundaries → eda → ddd →
+CQRS → api-design → authorization → security → content-security-policy →
+observability → tracing → octane → testing → deployment → broker-topologies →
+external-brokers → cdc-streaming → ci-cd → mercure-streaming →
+preview-environments → frankenphp**. Later chapters assume the earlier ones'
+vocabulary.
 
 ## Chapters
 

@@ -9,7 +9,7 @@ document defines how version-sensitive claims are recorded, verified, and retire
 
 ## Current support reality (stated as of 2026-11)
 
-| Version | Released | Bug fixes until | Security fixes until | Status 2026-09 |
+| Version | Released | Bug fixes until | Security fixes until | Status 2026-11 |
 |---|---|---|---|---|
 | Laravel 10 | 2023-02 | 2024-08 | 2025-02 | **EOL** — historical reference only |
 | Laravel 11 | 2024-03 | 2025-09 | 2026-03 | **EOL** — historical reference only |

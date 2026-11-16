@@ -33,11 +33,6 @@
       }
     }
   },
-  "policy": {
-    "advisories": {
-      "block": false
-    }
-  },
   "scripts": {
     "test": "pest"
   }
