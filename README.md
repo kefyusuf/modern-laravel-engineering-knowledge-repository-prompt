@@ -7,12 +7,12 @@ Not a syntax tutorial: every chapter answers what problem a technique solves, wh
 avoid it, what a production implementation requires, how it is tested and operated,
 and exactly which Laravel/PHP versions change the answer.
 
-**Status: reviewed (2026-11).** 31 of 34 chapters passed three rounds of
-independent adversarial review (60 findings, all resolved); the CDC, tracing,
-and Temporal chapters are in their first review cycle. Chapters marked ⚙️
-have their load-bearing examples **executed locally via Docker and in CI
-across the full Laravel 10–13 matrix** (see [docs/examples.md](docs/examples.md)
-for the recorded run). Content licensing: [CC BY 4.0](LICENSE.md) · code:
+**Status: reviewed (2026-11).** All 34 chapters passed independent adversarial
+review across four rounds (91 findings, all resolved); the Temporal chapter
+passed its promotion-gate review most recently. Chapters marked ⚙️ have their
+load-bearing examples **executed locally via Docker and in CI across the full
+Laravel 10–13 matrix** (see [docs/examples.md](docs/examples.md) for the
+recorded run). Content licensing: [CC BY 4.0](LICENSE.md) · code:
 [MIT](LICENSE-CODE).
 
 > **About the repository name:** the `-prompt` suffix is an artifact of how this
