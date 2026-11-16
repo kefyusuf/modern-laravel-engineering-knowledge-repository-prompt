@@ -129,5 +129,6 @@ skeleton, the content standard as the bar, and ⚙️ tests for the load-bearing
 Small factual corrections (with a primary source) need no proposal.
 
 By contributing you agree your contribution is licensed [CC BY 4.0](LICENSE.md)
-(prose) / [MIT](LICENSE-CODE) (code) and that you can certify the
+(prose) / [MIT](LICENSE-CODE) (code), that you follow the
+[Code of Conduct](CODE_OF_CONDUCT.md), and that you can certify the
 [DCO](https://developercertificate.org/) — sign commits with `git commit -s`.

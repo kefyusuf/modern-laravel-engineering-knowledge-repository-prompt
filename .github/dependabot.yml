@@ -1,0 +1,25 @@
+# Dependabot: keep GitHub Actions pinned versions current.
+# Note: the harness's composer dependencies are intentionally NOT managed
+# here — the CI matrix re-resolves laravel/framework + testbench per cell
+# (see .github/workflows/ci.yml), and a lock file is not committed.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "composer"
+    directory: "/examples"
+    schedule:
+      interval: "weekly"
+    allow:
+      # Harness tooling only: the framework matrix is managed by the CI
+      # workflow's per-cell `composer require`, not by Dependabot.
+      dependency-type: "development"
+    ignore:
+      # The framework/testbench matrix pins are set per CI cell; Dependabot
+      # would fight the matrix if it bumped them.
+      - dependency-name: "laravel/framework"
+      - dependency-name: "orchestra/testbench"
+      - dependency-name: "pestphp/pest"
+      - dependency-name: "pestphp/pest-plugin-laravel"

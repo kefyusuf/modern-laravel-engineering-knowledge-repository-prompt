@@ -33,7 +33,8 @@ document, and the Laravel versions where behavior actually differs.
 - carry ⚙️ tests in `examples/tests/` for every tagged production-safe example
   ([mapping contract](docs/examples.md));
 - set `status: draft` — promotion to `reviewed` happens in the review round;
-- sign commits (`git commit -s`, [DCO](https://developercertificate.org/)).
+- sign commits (`git commit -s`, [DCO](https://developercertificate.org/));
+- follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Review checklist (what reviewers actually check)
 
