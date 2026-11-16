@@ -1,5 +1,7 @@
 # Modern Laravel Engineering
 
+[![CI](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/actions/workflows/ci.yml/badge.svg)](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/actions/workflows/ci.yml)
+
 **A production engineering handbook for intermediate → senior Laravel engineers.**
 Not a syntax tutorial: every chapter answers what problem a technique solves, when to
 avoid it, what a production implementation requires, how it is tested and operated,
@@ -136,3 +138,7 @@ By contributing you agree your contribution is licensed [CC BY 4.0](LICENSE.md)
 (prose) / [MIT](LICENSE-CODE) (code), that you follow the
 [Code of Conduct](CODE_OF_CONDUCT.md), and that you can certify the
 [DCO](https://developercertificate.org/) — sign commits with `git commit -s`.
+
+**Companion project:** [laravel-agent-bench](https://github.com/kefyusuf/laravel-agent-bench)
+benchmarks coding agents on the same failure modes this handbook teaches you to
+avoid — the chapters are the material, the bench is the exam.
