@@ -336,7 +336,8 @@ engine anyway":
    re-drives from the state table, but hundreds of long-running flows with
    weeks-long steps (approval chains, provisioning waits) want an engine
    whose execution state, timers, and retries are its core competency
-   (Temporal-class durable-execution systems have mature PHP SDKs).
+   (Temporal-class durable-execution systems have mature PHP SDKs —
+   see [Durable execution with Temporal](temporal.md)).
 2. **The flow graph is dynamic** — branches decided by data, steps added by
    configuration rather than code. A state machine per model
    (e.g. `spatie/laravel-model-states` for model lifecycle) covers the
@@ -372,4 +373,5 @@ engine for most flows.
 - [Queues](../messaging/queues.md) — the retry/failed machinery each step
   rides on.
 - [EDA](../architecture/eda.md) — the orchestration-vs-choreography decision.
-- Roadmap: workflow-engine comparison, temporal-pattern deep dive.
+- Covered since this line was written: [Durable execution with
+  Temporal](temporal.md). Roadmap: Signal/Query pattern deep dive.

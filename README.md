@@ -29,11 +29,12 @@ Content licensing: [CC BY 4.0](LICENSE.md) · code: [MIT](LICENSE-CODE).
 - [Decisions](docs/decisions/) — why the repository is built the way it is.
 
 Suggested reading order: **transactions → locking → queues → idempotency →
-outbox → caching → redis → eloquent → database-performance → row-level-security →
-modular monolith → boundaries → eda → ddd → CQRS → api-design → authorization →
-security → content-security-policy → observability → octane → testing →
-deployment → online-ddl → ci-cd → mercure-streaming → preview-environments →
-frankenphp**. Later chapters assume the earlier ones' vocabulary.
+outbox → sagas → temporal → caching → redis → eloquent → database-performance →
+row-level-security → modular monolith → boundaries → eda → ddd → CQRS →
+api-design → authorization → security → content-security-policy → observability →
+tracing → octane → testing → deployment → broker-topologies → external-brokers →
+ci-cd → mercure-streaming → preview-environments → frankenphp**. Later chapters
+assume the earlier ones' vocabulary.
 
 ## Chapters
 
@@ -58,6 +59,7 @@ frankenphp**. Later chapters assume the earlier ones' vocabulary.
 | [Idempotency](chapters/messaging/idempotency.md) | ⚙️ | Safe retries at every boundary: keys, dedupe stores, and why "at-least-once" means your consumers are already running this pattern — badly. |
 | [The transactional outbox](chapters/messaging/outbox.md) | ⚙️ | Publishing events reliably when the database is the source of truth — including the inbox half of the contract. |
 | [Sagas and process managers](chapters/messaging/sagas.md) | ⚙️ | Multi-step flows with compensation: a state table, ordered steps, idempotent undos, and the failures each prevents. |
+| [Durable execution with Temporal](chapters/messaging/temporal.md) | 📖 | When the hand-built runner stops scaling: the deterministic-replay mental model, activities as idempotent side effects, and the versioning discipline. |
 | [Message broker topologies](chapters/messaging/broker-topologies.md) | 📖 | Queue partitioning by concern and criticality, retry lanes, parking lots — the wiring plan behind queues. |
 | [External brokers](chapters/messaging/external-brokers.md) | 📖 | RabbitMQ exchange patterns and Kafka stream patterns for Laravel — when the queue drivers stop being enough, and which disciplines carry over. |
 | [CDC and Debezium](chapters/messaging/cdc-streaming.md) | 📖 | The outbox ladder's final rung: log-based capture that removes the relay entirely — same contract, new delivery. |

@@ -139,6 +139,16 @@ one new chapter + eight section additions across existing chapters.
 **31 chapters total.** No harness changes (all folded content is 📖-level);
 mapping stays 48↔48.
 
+## Wave 11 (2026-11) — the engine arc completed
+
+| Item | Why now |
+|---|---|
+| `messaging/temporal` 📖 | The durable-execution deep dive the sagas chapter's engine section promised — deterministic replay, activities, versioning discipline; verified against Temporal PHP SDK docs and the keepsuit/laravel-temporal integration. |
+
+**32 chapters total.** The saga/engine arc is complete end to end:
+[idempotency](../../chapters/messaging/idempotency.md) →
+[sagas](../../chapters/messaging/sagas.md) → [Temporal](../../chapters/messaging/temporal.md).
+
 ## Wave 10 (2026-11) — the last two deferred chapters + glossary
 
 | Item | Why now |
