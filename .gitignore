@@ -16,3 +16,6 @@ Thumbs.db
 
 # Local execution tooling
 examples/composer.phar
+
+# Review-agent evidence artifacts
+contrib_tree.json
