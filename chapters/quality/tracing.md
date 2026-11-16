@@ -68,17 +68,26 @@ OTel's Laravel path: the SDK + the official Laravel instrumentation
 package, exporting to any OTLP-compatible backend (Jaeger, Grafana Tempo,
 a vendor collector):
 
-```php
-<?php
+```text
+composer require open-telemetry/opentelemetry-laravel   # official instrumentation
 
-// config: OTel SDK via the official opentelemetry-laravel package —
-// auto-instrumentation covers HTTP requests, DB queries, and queue jobs
-// (span creation + context propagation) without per-route code.
-
-// The traceparent header is the contract: the instrumentation reads and
-// writes it automatically — inbound requests continue remote traces,
-// outbound HTTP calls continue yours (W3C Trace Context).
+# .env — the OTel-standard variables, read by the package:
+OTEL_SERVICE_NAME=checkout-api
+OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4318
+OTEL_TRACES_SAMPLER=parentbased_traceidratio
+OTEL_TRACES_SAMPLER_ARG=0.1        # head-sampling: keep ~10%, tune per flow
 ```
+
+Auto-instrumentation then covers HTTP requests, DB queries, and queue jobs
+(span creation + context propagation) without per-route code. For
+extension-less environments the SDK runs in pure PHP; the `otel` PHP
+extension accelerates it. Community alternatives
+(`keepsuit/laravel-opentelemetry`, LaraOTel) wrap the same SDK with more
+Laravel-specific defaults.
+
+The `traceparent` header is the contract: the instrumentation reads and
+writes it automatically — inbound requests continue remote traces, outbound
+HTTP calls continue yours (W3C Trace Context).
 
 The one piece auto-instrumentation cannot know: **which spans matter**. The
 discipline that makes traces useful is naming and attributing the spans
