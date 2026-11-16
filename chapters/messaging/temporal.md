@@ -133,35 +133,45 @@ use Temporal\Workflow\WorkflowMethod;
 #[WorkflowInterface]
 final class TransferWorkflow
 {
-    private array $compensated = [];
-
     #[WorkflowMethod(name: 'transfer.execute')]
     public function execute(int $fromAccountId, int $toAccountId, int $amountCents): iterable
     {
         // Deterministic orchestration: every decision is replayable.
         try {
-            yield Workflow::newActivityStub(
-                DebitActivity::class,
-                startToCloseTimeout: '30 seconds',
-                retry: ['maximumAttempts' => 5],
-            )->debit($fromAccountId, $amountCents);
+            yield $this->run(DebitActivity::class, 'debit', $fromAccountId, $amountCents, $toAccountId);
 
-            yield Workflow::newActivityStub(
-                CreditActivity::class,
-                startToCloseTimeout: '30 seconds',
-                retry: ['maximumAttempts' => 5],
-            )->credit($toAccountId, $amountCents);
+            yield $this->run(CreditActivity::class, 'credit', $toAccountId, $amountCents, $toAccountId);
 
             // Durable timer: survives worker restarts and server outages —
             // no sweeper command to build (the sagas chapter's "forgotten
             // timeout" failure mode is the engine's job now).
-            yield Workflow::timer(48 * 3600); // confirmation window
+            yield Workflow::timer(48 * 3600); // confirmation window, seconds
 
             return 'completed';
         } catch (\Throwable $e) {
             yield $this->compensate();
             return 'compensated';
         }
+    }
+
+    /**
+     * One option object per activity: schedule-to-close bounds the whole
+     * attempt window, start-to-close bounds a single attempt, and the retry
+     * policy is the engine's — the sagas chapter's sweeper and backoff
+     * loops are the SDK's here.
+     */
+    private function run(string $activity, string $method, int ...$args): \Generator
+    {
+        $options = \Temporal\Activity\ActivityOptions::new()
+            ->withScheduleToCloseTimeout(\Carbon\CarbonInterval::seconds(60))
+            ->withStartToCloseTimeout(\Carbon\CarbonInterval::seconds(30))
+            ->withRetryOptions(
+                \Temporal\Activity\RetryOptions::new()->withMaximumAttempts(5),
+            );
+
+        $stub = Workflow::newActivityStub($activity, $options);
+
+        return yield $stub->$method(...$args);
     }
 
     private function compensate(): iterable
