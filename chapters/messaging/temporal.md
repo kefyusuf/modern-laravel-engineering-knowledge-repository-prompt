@@ -1,8 +1,8 @@
 ---
 title: Durable execution with Temporal
 topic: temporal
-status: draft
-reviewed-against: "Temporal PHP SDK & docs, 2026-11"
+status: reviewed
+reviewed-against: "temporalio/sdk-php 2.20.x docs, keepsuit/laravel-temporal 2.5.x, 2026-11"
 ---
 
 # Durable execution with Temporal
@@ -26,9 +26,12 @@ effects** — get that backwards and the engine becomes the incident.
   flows, or the "workflow" is really a job chain — Temporal is a distributed
   system you adopt, the heaviest item in this handbook's toolbox.
 - **The classic production incident:** the workflow code deployed while old
-  executions were mid-flight, and replay diverged — Temporal requires
-  workflow-code versioning discipline (pin old executions to the code that
-  started them), and skipping that is how an innocent-looking change breaks
+  executions were mid-flight, and replay diverged — Temporal does **not** pin
+  running executions to the code that started them: by default they replay on
+  whatever worker code is current, and a non-replay-safe change fails them
+  with a nondeterminism error. Keeping old executions on old logic is
+  opt-in — replay-safe patching (`Workflow::getVersion()`) or pinned worker
+  deployments — and skipping it is how an innocent-looking change breaks
   every running workflow.
 
 ## Problem
@@ -91,10 +94,14 @@ classic failure:
   here too.
 
 The replay rule also governs **changes**: deploying new workflow code while
-old executions run means two versions replaying — Temporal pins running
-executions to the code version that started them (via the framework's
-versioning/replay mechanisms), and skipping that discipline is the
-production incident this chapter opens with.
+old executions run means two versions replaying — and Temporal does **not**
+pin them by default: in-flight executions are handed to whichever worker
+polls the task queue and replayed on the *new* code; a non-replay-safe
+change fails them with a nondeterminism error. Keeping old executions on
+old logic is opt-in — replay-safe patching (`Workflow::getVersion()`
+change-ID markers) or pinned worker deployments (Worker Versioning) — and
+skipping that discipline is the production incident this chapter opens
+with.
 
 ## The Laravel integration shape
 
@@ -118,7 +125,7 @@ on deploy) and subject to the same state discipline questions as
 
 ## The simplest correct implementation
 
-The money-transfer saga from [sagas](sagas.md), as a Temporal workflow with
+The money-transfer flow from [sagas](sagas.md), as a Temporal workflow with
 compensation — note what *disappears* from your code:
 
 ```php
@@ -126,9 +133,27 @@ compensation — note what *disappears* from your code:
 
 namespace App\Flows\Transfer;
 
+use Carbon\CarbonInterval;
+use Temporal\Activity\ActivityOptions;
+use Temporal\Activity\RetryOptions;
 use Temporal\Workflow;
+use Temporal\Workflow\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
+
+/**
+ * The activities: stub targets are INTERFACES (the engine proxies them) —
+ * each method is one side effect, and each must be idempotent, because
+ * activity delivery is at-least-once here too.
+ */
+#[Workflow\ActivityInterface]
+interface TransferLedgerActivity
+{
+    public function debit(int $fromAccountId, int $amountCents): void;
+    public function credit(int $toAccountId, int $amountCents): void;
+    public function settle(int $toAccountId, int $amountCents): void;
+    public function reverseTransfer(int $fromAccountId, int $toAccountId, int $amountCents): void;
+}
 
 #[WorkflowInterface]
 final class TransferWorkflow
@@ -137,58 +162,43 @@ final class TransferWorkflow
     public function execute(int $fromAccountId, int $toAccountId, int $amountCents): iterable
     {
         // Deterministic orchestration: every decision is replayable.
+        $ledger = Workflow::newActivityStub(
+            TransferLedgerActivity::class,
+            ActivityOptions::new()
+                ->withScheduleToCloseTimeout(CarbonInterval::seconds(60))
+                ->withStartToCloseTimeout(CarbonInterval::seconds(30))
+                ->withRetryOptions(
+                    RetryOptions::new()->withMaximumAttempts(5),
+                ),
+        );
+
         try {
-            yield $this->run(DebitActivity::class, 'debit', $fromAccountId, $amountCents, $toAccountId);
+            yield $ledger->debit($fromAccountId, $amountCents);
+            yield $ledger->credit($toAccountId, $amountCents);
 
-            yield $this->run(CreditActivity::class, 'credit', $toAccountId, $amountCents, $toAccountId);
+            // Durable timer: the workflow pauses 48 hours and survives
+            // worker restarts and server outages — a plain wait, with no
+            // sweeper command to build. (A confirmation deadline — a
+            // signal racing this timer — is the Signal/Query step; see
+            // the roadmap note below.)
+            yield Workflow::timer(48 * 3600);
 
-            // Durable timer: survives worker restarts and server outages —
-            // no sweeper command to build (the sagas chapter's "forgotten
-            // timeout" failure mode is the engine's job now).
-            yield Workflow::timer(48 * 3600); // confirmation window, seconds
+            yield $ledger->settle($toAccountId, $amountCents);
 
             return 'completed';
         } catch (\Throwable $e) {
-            yield $this->compensate();
-            return 'compensated';
+            yield $ledger->reverseTransfer($fromAccountId, $toAccountId, $amountCents);
+            throw $e; // the caller decides: alert, retry the saga, or dead-end
         }
-    }
-
-    /**
-     * One option object per activity: schedule-to-close bounds the whole
-     * attempt window, start-to-close bounds a single attempt, and the retry
-     * policy is the engine's — the sagas chapter's sweeper and backoff
-     * loops are the SDK's here.
-     */
-    private function run(string $activity, string $method, int ...$args): \Generator
-    {
-        $options = \Temporal\Activity\ActivityOptions::new()
-            ->withScheduleToCloseTimeout(\Carbon\CarbonInterval::seconds(60))
-            ->withStartToCloseTimeout(\Carbon\CarbonInterval::seconds(30))
-            ->withRetryOptions(
-                \Temporal\Activity\RetryOptions::new()->withMaximumAttempts(5),
-            );
-
-        $stub = Workflow::newActivityStub($activity, $options);
-
-        return yield $stub->$method(...$args);
-    }
-
-    private function compensate(): iterable
-    {
-        // Compensation activities run in reverse order; the engine tracks
-        // which side effects actually happened and their own retries.
-        yield Workflow::newActivityStub(CompensationActivity::class)
-            ->reverseLastTransfer();
     }
 }
 ```
 
 What vanished relative to the hand-built runner: the state table, the
-sweeper command, the retry loops, the
-[timeout](../data/locking.md) bookkeeping — the engine owns all four. What
-remains yours: deterministic workflow logic, idempotent activities
-([idempotency](idempotency.md)), and versioning discipline.
+retry loops, and the [timeout](../data/locking.md) bookkeeping — the engine
+owns all three. What remains yours: deterministic workflow logic,
+idempotent activities ([idempotency](idempotency.md)), and versioning
+discipline.
 
 ## What production requires
 
@@ -196,17 +206,24 @@ remains yours: deterministic workflow logic, idempotent activities
   Temporal Cloud; sizing, upgrades, and retention policies are standing
   work ([deployment](../runtime/deployment.md) gravity).
 - **Workflow versioning discipline:** changes to running workflow code must
-  be replay-safe — the engine's versioning mechanisms (pinned histories,
-  `Workflow::versioning` APIs) are part of every deploy runbook; a
-  non-replay-safe change breaks *every in-flight execution*, silently.
+  be replay-safe — `Workflow::getVersion()` change-ID markers for touched
+  logic and pinned worker deployments are part of every deploy runbook; a
+  non-replay-safe change breaks *every in-flight execution*, with a
+  nondeterminism error (the engine does not shield you by default).
 - **Worker pool sizing and supervision:** RoadRunner workers are
-  long-lived — supervisor posture, memory ceilings, and reload-on-deploy
-  mirror the [queues](../messaging/queues.md) rules.
+  long-lived — supervisor posture, memory ceilings, and restart-on-deploy
+  (not reload — Temporal workers have no zero-downtime reload path) mirror
+  the [queues](../messaging/queues.md) rules; the `.rr.yaml` pool knobs
+  (`max_jobs`, `max_memory`) are the recycling mechanism.
+- **The state-leak test is non-negotiable here too:** two activities, one
+  worker, assert no tenant bleed — the [Octane](../runtime/octane.md)
+  cross-request test's twin. Statics and unflushed singletons leak across
+  executions on the same worker identically.
 - **Laravel access inside activities:** activities run in workers with the
-  Laravel container (via the integration package) — DB connections,
-  [queues](../messaging/queues.md), and
-  [Context](../interfaces/../data/caching.md)-style per-execution state
-  follow the same long-lived-process hygiene as Octane workers.
+  Laravel container (via the integration package) — DB connections and
+  [queues](../messaging/queues.md) follow the same long-lived-process
+  hygiene as Octane workers; per-execution state rides the
+  [Context](../quality/observability.md) facade, not process memory.
 - **Observability:** Temporal ships its own visibility (per-instance state,
   history queries) and integrates with
   [tracing](../quality/tracing.md) on workers — the saga dashboard's successor.
@@ -239,10 +256,12 @@ remains yours: deterministic workflow logic, idempotent activities
 
 ## How to test it
 
-- **Workflow replay tests:** the SDK supports testing workflows without a
-  server — assert the activity sequence, the timer, and the compensation
-  path as a deterministic tree. This is the framework-free discipline of
-  [testing](../quality/testing.md) applied to the engine's own model.
+- **The SDK testing suite:** `Temporal\Testing\WorkflowTestCase` with the
+  time-skipping test server (timers fast-forward instead of waiting) and
+  the `WorkflowReplayer` — which re-runs *recorded histories* against
+  current code to assert determinism without any server. Both are the
+  [testing](../quality/testing.md) discipline applied to the engine's own
+  model.
 - **Activity idempotency:** the same
   [idempotency](idempotency.md) matrix — redelivery, retry, replay.
 - **Version-compat drill:** start a workflow on the current code, deploy
@@ -276,9 +295,10 @@ remains yours: deterministic workflow logic, idempotent activities
   sweeps, ledger growth, claim contention) and replaces them with
   cluster scaling — a better trade at volume.
 - **The ceiling:** engine adoption is a platform commitment — namespaces,
-  retention, SDK upgrades, worker fleets. Adopt when the flow portfolio
-  (not one flow) justifies it; one complex flow is what
-  [sagas](sagas.md) is for.
+  retention, SDK upgrades, worker fleets. A single hundreds-of-steps or
+  heavy-branching flow is the *first* engine conversation; the portfolio
+  case (many flows, many teams) is where adoption pays for itself
+  ([sagas](sagas.md) stays the runner for everything simpler).
 
 ## Version differences
 

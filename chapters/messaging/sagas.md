@@ -344,6 +344,9 @@ engine anyway":
    common middle ground without a workflow engine.
 3. **Multiple teams own steps of shared flows** — an engine gives the
    step-ownership and versioning model; the runner assumes one owner.
+4. **Instance visibility is a product need** — support and users seeing
+   exactly where each flow is, live (the engine's per-instance dashboard;
+   see [Durable execution with Temporal](temporal.md)).
 
 The evaluation bar: the engine must reduce the state-management code you
 own, not relocate it. A workflow engine is a distributed system you adopt —
