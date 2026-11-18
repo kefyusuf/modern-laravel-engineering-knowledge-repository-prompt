@@ -115,7 +115,7 @@ What to look at, in scrutiny order:
 ## Adding a path
 
 Paths that cover a real situation are welcome content: open a
-[chapter proposal](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/issues/new?template=chapter-proposal.yml)
+[chapter proposal](https://github.com/kefyusuf/modern-laravel-engineering/issues/new?template=chapter-proposal.yml)
 with the situation and the ordered chapter list. A path must solve a
 *sequence*, not just list favorite chapters — each step should change what
 the reader does next.

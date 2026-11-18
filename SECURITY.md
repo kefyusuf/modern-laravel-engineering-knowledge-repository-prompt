@@ -43,7 +43,7 @@ and (for harness code) reproduction steps.
 |---|---|
 | `main` branch (docs + harness) | ✅ |
 | Older commits/tags | ❌ — the handbook is corrected forward |
-| Laravel versions covered by the [matrix](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/actions) | ✅ claims verified per cell |
+| Laravel versions covered by the [matrix](https://github.com/kefyusuf/modern-laravel-engineering/actions) | ✅ claims verified per cell |
 | Laravel versions outside the [support windows](docs/version-policy.md) | ❌ — historical reference only |
 
 ## What we ask of readers

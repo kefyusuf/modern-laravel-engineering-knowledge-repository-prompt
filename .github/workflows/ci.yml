@@ -18,6 +18,7 @@ jobs:
   docs:
     name: Docs gates (lint, links, mapping, markers)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -37,6 +38,7 @@ jobs:
   examples:
     name: Harness — Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -73,6 +75,8 @@ jobs:
           # composer.json hash is the honest cache key.
           key: composer-${{ matrix.php }}-${{ hashFiles('examples/composer.json') }}
           restore-keys: composer-${{ matrix.php }}-
+      - name: Validate composer.json schema
+        run: composer validate --strict
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev
@@ -86,6 +90,7 @@ jobs:
   dependency-audit:
     name: Dependency audit (weekly)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name == 'schedule'
     defaults:
       run:
@@ -103,6 +108,7 @@ jobs:
   external-links:
     name: External link check (weekly)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -117,6 +123,7 @@ jobs:
   dco:
     name: DCO (Signed-off-by on every PR commit)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

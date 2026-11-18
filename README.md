@@ -1,6 +1,6 @@
 # Modern Laravel Engineering
 
-[![CI](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/actions/workflows/ci.yml/badge.svg)](https://github.com/kefyusuf/modern-laravel-engineering-knowledge-repository-prompt/actions/workflows/ci.yml)
+[![CI](https://github.com/kefyusuf/modern-laravel-engineering/actions/workflows/ci.yml/badge.svg)](https://github.com/kefyusuf/modern-laravel-engineering/actions/workflows/ci.yml)
 
 **A production engineering handbook for intermediate → senior Laravel engineers.**
 Not a syntax tutorial: every chapter answers what problem a technique solves, when to
@@ -14,10 +14,6 @@ load-bearing examples **executed locally via Docker and in CI across the full
 Laravel 10–13 matrix** (see [docs/examples.md](docs/examples.md) for the
 recorded run). Content licensing: [CC BY 4.0](LICENSE.md) · code:
 [MIT](LICENSE-CODE).
-
-> **About the repository name:** the `-prompt` suffix is an artifact of how this
-> repository was created; the content is the handbook itself — nothing in it is
-> a prompt or generated-on-demand text.
 
 ## How to read this
 
