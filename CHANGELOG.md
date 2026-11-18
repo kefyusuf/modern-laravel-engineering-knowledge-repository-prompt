@@ -9,9 +9,10 @@ records what each review round checked.
 
 ## [Unreleased]
 
-Everything since the v1.0.0 tag. Per the versioning rule above, this ships
-as **1.1.0** when tagged (minor: one new chapter); the section is renamed
-at tag time.
+## [1.1.0] — 2026-11-19
+
+Everything since the v1.0.0 tag: the handbook's first minor release
+(minor: one new chapter, per the versioning rule above).
 
 ### Added
 
