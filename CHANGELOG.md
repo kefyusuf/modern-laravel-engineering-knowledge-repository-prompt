@@ -9,6 +9,50 @@ records what each review round checked.
 
 ## [Unreleased]
 
+Everything since the v1.0.0 tag. Per the versioning rule above, this ships
+as **1.1.0** when tagged (minor: one new chapter); the section is renamed
+at tag time.
+
+### Added
+
+- **Durable execution with Temporal**
+  ([chapters/messaging/temporal.md](chapters/messaging/temporal.md)) — the
+  34th chapter: the deterministic-replay mental model, activities as
+  idempotent side effects, and the versioning discipline. Verified against
+  the Temporal PHP SDK docs and keepsuit/laravel-temporal.
+- [docs/reading-paths.md](docs/reading-paths.md) — scenario-based navigation,
+  eight paths: first production app, multi-tenant SaaS, incident triage,
+  architecture review, queue misbehavior, database scaling, hardening,
+  realtime/streaming
+- README: CI badge and the companion-project link to laravel-agent-bench
+
+### Changed
+
+- CI hardening: a least-privilege `permissions: contents: read` block for the
+  whole workflow, every action pinned to its full commit SHA (version kept as
+  a comment), and DCO `Signed-off-by` enforced on pull requests by a
+  dedicated job
+
+### Reviewed
+
+- Fourth adversarial review round: 17 findings on the wave-10 chapters
+  (cdc-streaming, tracing) and the quality-closure pass — all resolved; both
+  chapters promoted to `reviewed`, completing the v1.0.0 contents at 33/33
+- Fifth adversarial review round (the Temporal promotion gate): 14 findings,
+  all resolved; temporal.md promoted to `reviewed` — 34/34 across the
+  handbook
+- Five rounds total to date: **91 findings, all resolved**
+
+### Fixed
+
+- README status count corrected to 34/34 chapters reviewed after the Temporal
+  promotion
+
+### Removed
+
+- A stray review-agent artifact (`contrib_tree.json`, a 577KB GitHub tree
+  dump); the pattern is now in `.gitignore`
+
 ## [1.0.0] — 2026-11-16
 
 The complete initial release: every planned topic and deep dive covered,
@@ -27,7 +71,6 @@ independently reviewed, and executed.
 - **Runtime:** octane, deployment, ci-cd, frankenphp,
   mercure-streaming, preview-environments
 - **docs/glossary.md** — the term index (29 entries, CI link-checked)
-- **docs/reading-paths.md** — scenario-based navigation (six paths)
 
 ### Added — verification
 
@@ -47,10 +90,12 @@ independently reviewed, and executed.
 
 ### Quality evidence
 
-- Four independent adversarial review rounds: 77 findings, all resolved
-  (24 on waves 1-3, 18 on waves 4-6, 18 on waves 7-9, 14 on the Temporal
-  promotion gate)
+- Three independent adversarial review rounds before the tag: 60 findings,
+  all resolved (24 on waves 1-3, 18 on waves 4-6, 18 on waves 7-9). At tag
+  time 31 of 33 chapters carried `status: reviewed`; the remaining two
+  (cdc-streaming, tracing) were reviewed and promoted after the tag —
+  see [Unreleased]
 - The CI matrix caught a real framework bug on its first run: Laravel 10 +
   phpredis 6.x tag flush silent no-op (framework#54060) — now documented
   in the redis chapter and gated in the harness
-- Mimosa security scans after every commit: 0 findings
+- Automated security scans after every commit: 0 findings
